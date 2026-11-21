@@ -51,11 +51,13 @@ export function seoPlugin(env = process.env) {
   const cfg = seoConfig(env);
   return {
     name: 'imperium-seo',
-    transformIndexHtml(html) {
-      return html
+    // « pre » : avant l'analyse HTML de Vite, qui refuse les adresses contenant « % ».
+    transformIndexHtml: {
+      order: 'pre',
+      handler: (html) => html
         .replaceAll('%SITE_URL%', cfg.site)
         .replaceAll('%PRIX%', cfg.price)
-        .replace('<!--GOOGLE_VERIFICATION-->', cfg.google ? `<meta name="google-site-verification" content="${esc(cfg.google)}" />` : '');
+        .replace('<!--GOOGLE_VERIFICATION-->', cfg.google ? `<meta name="google-site-verification" content="${esc(cfg.google)}" />` : ''),
     },
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robotsTxt(cfg) });
