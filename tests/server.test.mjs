@@ -12,7 +12,7 @@ globalThis.fetch = async (url, opts = {}) => {
     calls.push({ url: String(url), opts });
     assert.equal(opts.headers.Authorization, 'Bearer sk_test_fauxpourlestests');
     if (opts.method === 'POST') return new Response(JSON.stringify({ id: SID, url: 'https://checkout.stripe.com/c/pay/' + SID }), { status: 200 });
-    return new Response(JSON.stringify({ id: SID, payment_status: paid, amount_total: 999, metadata: { produit: 'imperium-urbis' } }), { status: 200 });
+    return new Response(JSON.stringify({ id: SID, payment_status: paid, amount_total: 1999, metadata: { produit: 'imperium-urbis' } }), { status: 200 });
   }
   return realFetch(url, opts);
 };
@@ -42,7 +42,7 @@ try {
   r = await (await post('/api/achat/commande')).json();
   assert.equal(r.id, SID);
   const form = new URLSearchParams(calls[0].opts.body);
-  assert.equal(form.get('line_items[0][price_data][unit_amount]'), '999');
+  assert.equal(form.get('line_items[0][price_data][unit_amount]'), '1999');
   assert.equal(form.get('mode'), 'payment');
   assert.match(form.get('success_url'), /\/achat\.html\?achat=merci&session_id=\{CHECKOUT_SESSION_ID\}$/);
 
