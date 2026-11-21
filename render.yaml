@@ -15,7 +15,7 @@ services:
       - key: GOOGLE_SITE_VERIFICATION
         sync: false
       - key: PRIX
-        value: "19.99"
+        value: "13.5"
       - key: COOKIE_SECRET
         generateValue: true
       - key: NODE_VERSION

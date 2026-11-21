@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 
 process.env.STRIPE_SECRET_KEY = 'sk_test_fauxpourlestests';
-process.env.PRIX = '19.99';
+process.env.PRIX = '13.5';
 const realFetch = globalThis.fetch;
 const calls = [];
 const SID = 'cs_test_a1B2c3D4e5F6g7H8';
@@ -12,7 +12,7 @@ globalThis.fetch = async (url, opts = {}) => {
     calls.push({ url: String(url), opts });
     assert.equal(opts.headers.Authorization, 'Bearer sk_test_fauxpourlestests');
     if (opts.method === 'POST') return new Response(JSON.stringify({ id: SID, url: 'https://checkout.stripe.com/c/pay/' + SID }), { status: 200 });
-    return new Response(JSON.stringify({ id: SID, payment_status: paid, amount_total: 1999, metadata: { produit: 'imperium-urbis' } }), { status: 200 });
+    return new Response(JSON.stringify({ id: SID, payment_status: paid, amount_total: 1350, metadata: { produit: 'imperium-urbis' } }), { status: 200 });
   }
   return realFetch(url, opts);
 };
@@ -37,12 +37,12 @@ const post = (p, body) => realFetch(B + p, { method: 'POST', body: JSON.stringif
 
 try {
   let r = await (await realFetch(`${B}/api/achat/config`)).json();
-  assert.deepEqual(r, { enabled: true, environment: 'test', price: 19.99, currency: 'EUR', owned: false });
+  assert.deepEqual(r, { enabled: true, environment: 'test', price: 13.5, currency: 'EUR', owned: false });
 
   r = await (await post('/api/achat/commande')).json();
   assert.equal(r.id, SID);
   const form = new URLSearchParams(calls[0].opts.body);
-  assert.equal(form.get('line_items[0][price_data][unit_amount]'), '1999');
+  assert.equal(form.get('line_items[0][price_data][unit_amount]'), '1350');
   assert.equal(form.get('mode'), 'payment');
   assert.match(form.get('success_url'), /\/achat\.html\?achat=merci&session_id=\{CHECKOUT_SESSION_ID\}$/);
 
