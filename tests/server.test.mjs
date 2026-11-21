@@ -17,7 +17,20 @@ globalThis.fetch = async (url, opts = {}) => {
   return realFetch(url, opts);
 };
 
-const { server, makeToken, checkToken } = await import('../server/index.mjs');
+const { server, makeToken, checkToken, loadEnvFile } = await import('../server/index.mjs');
+
+// lecture d'un fichier .env (Secret File Render)
+{
+  const { writeFileSync, mkdtempSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { tmpdir } = await import('node:os');
+  const f = join(mkdtempSync(join(tmpdir(), 'iu-')), '.env');
+  writeFileSync(f, '# commentaire\nSTRIPE_SECRET_KEY="sk_test_abc"\nexport PRIX=12.5 # prix\nDEJA=nouveau\n');
+  const env = { DEJA: 'ancien' };
+  assert.ok(loadEnvFile(f, env));
+  assert.deepEqual(env, { DEJA: 'ancien', STRIPE_SECRET_KEY: 'sk_test_abc', PRIX: '12.5' });
+  assert.equal(loadEnvFile(f + '.absent', env), false);
+}
 await new Promise((r) => server.listen(0, r));
 const B = `http://127.0.0.1:${server.address().port}`;
 const post = (p, body) => realFetch(B + p, { method: 'POST', body: JSON.stringify(body || {}), headers: { 'Content-Type': 'application/json' } });
