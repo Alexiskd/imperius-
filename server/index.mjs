@@ -5,11 +5,6 @@
 //   POST /api/achat/commande → crée une session Stripe Checkout → { id, url }
 //   POST /api/achat/capture  → { id } : vérifie la session auprès de Stripe, pose le cookie signé → { ok }
 //   GET  /jeu.html           → le jeu, seulement avec un cookie d'achat valide (sinon /index.html#acheter)
-// Dons (méthode reprise de GobaiWebService) : montant libre validé côté serveur, page de paiement hébergée par Stripe.
-//   GET  /api/dons/config   → { enabled, environment, minAmount }
-//   POST /api/dons/commande → { montant } crée la page de paiement d'un don → { id, url }
-//   POST /api/dons/capture  → { id } confirme le don payé auprès de Stripe → { ok, amount }
-//   POST /api/dons/annule   → { id } ferme la page de paiement d'un don abandonné → { ok }
 import { createServer } from 'node:http';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -47,19 +42,6 @@ const MAX_AGE = 400 * 24 * 3600; // plafond des navigateurs
 const SIGN_KEY = process.env.COOKIE_SECRET || createHmac('sha256', 'imperium-urbis-cookie').update(KEY || 'dev').digest('hex');
 export const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{8,250}$/;
 const FREE = process.env.ACCES_LIBRE === '1';
-
-// ---------- dons (méthode de GobaiWebService : Stripe Checkout hébergé) ----------
-// Montant libre en euros, borné et converti en centimes côté serveur : le navigateur ne fixe jamais le prix.
-export const DON_MIN = 1; // euros
-export const DON_MAX = 100000; // même borne que Gobai
-export const CHECKOUT_TTL_MS = 31 * 60 * 1000; // 30 minutes minimum Stripe, plus une marge
-// donCents : valide un montant saisi (« 10 » ou « 9,90 ») et le convertit en centimes ; null si invalide.
-export function donCents(montant) {
-  const n = Number(String(montant ?? '').replace(',', '.'));
-  if (!Number.isFinite(n) || n < DON_MIN || n > DON_MAX || Math.round(n * 100) / 100 !== n) return null;
-  return Math.round(n * 100);
-}
-
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp4': 'video/mp4', '.json': 'application/json', '.ico': 'image/x-icon', '.woff2': 'font/woff2' };
 
 // ---------- cookie signé ----------
@@ -144,57 +126,6 @@ async function api(req, res, path) {
   if (path === '/api/achat/oublier' && req.method === 'POST') {
     return json(res, 200, { ok: true }, { 'Set-Cookie': cookieHeader(req, '', 0) });
   }
-
-  // ---------- dons : même méthode que GobaiWebService ----------
-  if (path === '/api/dons/config' && req.method === 'GET') {
-    return json(res, 200, { enabled: Boolean(KEY), environment: KEY.startsWith('sk_live_') || KEY.startsWith('rk_live_') ? 'live' : 'test', currency: 'EUR', minAmount: DON_MIN });
-  }
-  if (path === '/api/dons/commande' && req.method === 'POST') {
-    if (!KEY) return json(res, 503, { error: 'Les dons ne sont pas encore ouverts.' });
-    const { montant } = await readJson(req);
-    // Le montant est validé et fixé ici, côté serveur : le navigateur ne peut pas le modifier.
-    const cents = donCents(montant);
-    if (cents === null) return json(res, 400, { error: `Montant invalide : entre ${DON_MIN} et ${DON_MAX} €, deux décimales au maximum.` });
-    const o = origin(req);
-    const s = await stripe('POST', '/checkout/sessions', {
-      mode: 'payment',
-      // Bouton « Faire un don » : une session de don, sans client_reference_id.
-      submit_type: 'donate',
-      locale: 'fr',
-      success_url: `${o}/index.html?don=merci&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${o}/index.html?don=annule#don`,
-      // Expiration de la page de paiement : 31 minutes.
-      expires_at: String(Math.floor((Date.now() + CHECKOUT_TTL_MS) / 1000)),
-      'line_items[0][quantity]': '1',
-      'line_items[0][price_data][currency]': 'eur',
-      'line_items[0][price_data][unit_amount]': String(cents),
-      'line_items[0][price_data][product_data][name]': "Don au développeur d'Imperium Urbis",
-      'metadata[produit]': 'imperium-don',
-    });
-    return json(res, 200, { id: s.id, url: s.url });
-  }
-  if (path === '/api/dons/capture' && req.method === 'POST') {
-    const { id } = await readJson(req);
-    if (typeof id !== 'string' || !SESSION_ID.test(id)) return json(res, 400, { error: 'Identifiant de don invalide.' });
-    if (!KEY) return json(res, 503, { error: 'Les dons ne sont pas encore ouverts.' });
-    const s = await stripe('GET', `/checkout/sessions/${encodeURIComponent(id)}`);
-    if (s.payment_status !== 'paid' || s.metadata?.produit !== 'imperium-don') return json(res, 402, { error: 'Paiement non confirmé par Stripe.' });
-    return json(res, 200, { ok: true, amount: (s.amount_total || 0) / 100 });
-  }
-  if (path === '/api/dons/annule' && req.method === 'POST') {
-    const { id } = await readJson(req);
-    if (typeof id !== 'string' || !SESSION_ID.test(id)) return json(res, 400, { error: 'Identifiant de don invalide.' });
-    if (!KEY) return json(res, 503, { error: 'Les dons ne sont pas encore ouverts.' });
-    try {
-      // Ferme la page encore ouverte ; si elle vient d'être payée, rien n'est annulé.
-      const s = await stripe('POST', `/checkout/sessions/${encodeURIComponent(id)}/expire`, {});
-      return json(res, 200, { ok: s.status === 'expired' });
-    } catch {
-      // Déjà expirée ou payée : le donateur n'a rien perdu.
-      return json(res, 200, { ok: true });
-    }
-  }
-
   return json(res, 404, { error: 'Introuvable' });
 }
 
