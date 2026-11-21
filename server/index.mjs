@@ -17,6 +17,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { seoConfig, robotsTxt, sitemapXml } from '../tools/seo.js';
+import { connecterBP, routeSauvegardes } from './sauvegardes.mjs';
 
 // Fichiers .env : « Secret File » Render (/etc/secrets/.env) puis .env à la racine du projet.
 // Une variable déjà définie dans l'environnement n'est jamais écrasée.
@@ -79,6 +80,18 @@ function readCookie(req) {
   return m ? decodeURIComponent(m.slice(COOKIE.length + 1)) : '';
 }
 const owned = (req) => FREE || checkToken(readCookie(req));
+// Joueur : la session Stripe de son achat (cookie signé), ou « acces-libre » en développement.
+export function joueurDe(req) {
+  const t = readCookie(req);
+  if (checkToken(t)) return t.slice(0, t.lastIndexOf('.'));
+  return FREE ? 'acces-libre' : null;
+}
+
+// Base de données BP (DATABASE_URL) : connexion au démarrage ; null si non configurée ou injoignable.
+let bp = null;
+const bpPrete = connecterBP().then((db) => { bp = db; if (db) console.log('BP : sauvegardes des joueurs actives'); }, (e) => { console.error('BP injoignable :', e.message); });
+/** Remplace la connexion BP (tests). */
+export function utiliserBP(db) { bp = db; }
 function cookieHeader(req, value, maxAge) {
   const secure = (req.headers['x-forwarded-proto'] || '').startsWith('https') ? '; Secure' : '';
   return `${COOKIE}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Lax${secure}`;
@@ -114,6 +127,11 @@ function json(res, status, body, headers = {}) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...headers });
   res.end(JSON.stringify(body));
 }
+async function readBody(req, max) {
+  const chunks = []; let n = 0;
+  for await (const c of req) { n += c.length; if (n > max) throw Object.assign(new Error('Sauvegarde trop volumineuse'), { status: 413 }); chunks.push(c); }
+  return Buffer.concat(chunks).toString('utf8');
+}
 async function readJson(req) {
   let s = '';
   for await (const c of req) { s += c; if (s.length > 4096) throw Object.assign(new Error('Requête trop longue'), { status: 413 }); }
@@ -121,6 +139,15 @@ async function readJson(req) {
 }
 
 async function api(req, res, path) {
+  if (path === '/api/sauvegardes' || path.startsWith('/api/sauvegardes/')) {
+    await bpPrete;
+    try {
+      return await routeSauvegardes({ req, res, path, db: bp, joueur: joueurDe(req), readBody, json });
+    } catch (e) {
+      if (e instanceof SyntaxError) return json(res, 400, { error: 'JSON invalide' });
+      throw e;
+    }
+  }
   if (path === '/api/achat/config' && req.method === 'GET') {
     return json(res, 200, { enabled: Boolean(KEY), environment: KEY.startsWith('sk_live_') || KEY.startsWith('rk_live_') ? 'live' : 'test', price: PRICE, currency: 'EUR', owned: owned(req) });
   }
@@ -251,7 +278,7 @@ export const server = createServer(async (req, res) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
     return await serveFile(req, res, path);
   } catch (e) {
-    console.error(e);
+    if (!e.status) console.error(e);
     if (!res.headersSent) json(res, e.status || 500, { error: e.status ? e.message : 'Erreur du serveur.' });
   }
 });

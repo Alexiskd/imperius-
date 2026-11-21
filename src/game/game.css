@@ -130,3 +130,6 @@ h1, h2, h3, h4, .iu-menu .kicker { font-family: 'Cinzel', Georgia, 'Times New Ro
   .iu-minimap { width: 160px; height: 120px; }
   .iu-msgs { left: 180px; max-width: calc(100% - 190px); }
 }
+.iu-cloud { list-style: none; margin: 0 0 12px; padding: 0; max-height: 46vh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.iu-cloud li { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid var(--iu-line); border-radius: 6px; background: #211a13; }
+.iu-cloud small { display: block; }

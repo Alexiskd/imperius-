@@ -7,7 +7,7 @@ import { TopBar, SidePanel, Messages, Flash } from './ui/Panels.jsx';
 import { Modal } from './ui/Modals.jsx';
 import { Minimap } from './ui/Minimap.jsx';
 import { Menu } from './ui/Menu.jsx';
-import { saveGame, loadGame, hasSave, loadProgress, saveProgress, exportSave } from './saves.js';
+import { saveGame, loadGame, hasSave, loadProgress, saveProgress, exportSave, chargerSauvegardeBP } from './saves.js';
 import { TOOL_NONE, TOOL_CLEAR, MONTH_SECONDS, HOTKEYS, areaTool, OVERLAYS } from './constants.js';
 
 export default function GameApp() {
@@ -282,6 +282,7 @@ export default function GameApp() {
     exportSave: () => { exportSave(gameRef.current); say('Sauvegarde téléchargée (compatible avec ImperiumUrbis.exe).'); },
     menu: () => { setState('menu'); setSpeed(0); setModal(null); },
     load: (key) => { const gl = loadGame(key); if (gl) { startGame(gl); say(`Partie chargée : ${gl.scen().name}, an ${gl.year()}`); } else say('Aucune sauvegarde trouvée.'); },
+    loadCloud: async (id) => { const gl = await chargerSauvegardeBP(id); if (gl) { startGame(gl); say(`Partie chargée : ${gl.scen().name}, an ${gl.year()}`); } else say('Sauvegarde en ligne illisible.'); },
     importFile: async (file) => {
       try {
         const gl = Game.fromJSON(JSON.parse(await file.text()));
