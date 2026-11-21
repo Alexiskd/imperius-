@@ -72,7 +72,7 @@ function infoText(g, selected, hoverTip, tool) {
         `Habitants ${b.Pop}/${HOUSE_CAP[Math.max(1, b.Level)]} · Bonheur ${Math.round(b.Happy)}`,
         `Eau : ${['non', 'puits', 'fontaine'][b.WaterLvl]} · Nourriture : ${b.Variety} sorte(s) · Temple : ${yes(b.Religion)}`,
         `Spectacles : ${yes(b.Entertain)} · École : ${yes(b.Educ)} · Médecin : ${yes(b.Health)} · Thermes : ${yes(b.Hygiene)}`,
-        `Désirabilité ${b.Desir.toFixed(1)} · Impôts : ${yes(b.Taxed)}`,
+        `Disésrelie ${b.Desir.toFixed(1)} · Impôts : ${yes(b.Taxed)}`,
         `Pour évoluer : ${b.Needs}`,
       );
     } else if (isProducer(b.Kind)) {

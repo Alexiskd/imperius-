@@ -138,7 +138,7 @@ export class CityRenderer {
     skirt.rotation.x = -Math.PI / 2; skirt.position.set(MAP_W / 2, -0.05, MAP_H / 2);
     this.scene.add(skirt);
 
-    // calque coloré par case (désirabilité)
+    // calque coloré par case (disésrelie)
     this.ovCanvas = document.createElement('canvas');
     this.ovCanvas.width = MAP_W; this.ovCanvas.height = MAP_H;
     this.ovTex = new THREE.CanvasTexture(this.ovCanvas);
@@ -317,7 +317,7 @@ export class CityRenderer {
   setOverlay(fn, key) { this.overlay = fn; if (key !== this.overlayKey) { this.overlayKey = key; this.builtVersion = -1; } }
   forceRebuild() { this.builtVersion = -1; }
 
-  // calque de désirabilité
+  // calque de disésrelie
   showDesirability(on) {
     this.ovPlane.visible = on;
     if (!on) return;
