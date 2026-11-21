@@ -5,6 +5,7 @@ import { usePurchaseConfig } from '../paywall/api.js';
 import { takePurchaseReturn } from '../paywall/purchase.js';
 import { money } from '../config.js';
 import { SCENARIOS } from '../game/engine/defs.js';
+import { LangSelect } from '../i18n/index.js';
 
 const FEATURES = [
   ['Une cité en 3D', 'Routes, quartiers, aqueducs, forum et temples : votre ville se construit sous vos yeux, case après case, dans une vue 3D orientable.'],
@@ -61,6 +62,7 @@ export default function Home() {
           <a href="#prix">Prix</a>
           <a href="#faq">FAQ</a>
         </nav>
+        <LangSelect className="nav-lang" />
         <Cta />
       </header>
 

@@ -2,6 +2,7 @@
 import { useRef, useState } from 'react';
 import { SCENARIOS } from '../engine/defs.js';
 import { hasSave } from '../saves.js';
+import { LangSelect } from '../../i18n/index.js';
 
 export function Menu({ progress, actions, canResume }) {
   const [view, setView] = useState('main');
@@ -47,6 +48,7 @@ export function Menu({ progress, actions, canResume }) {
             <button type="button" className="iu-btn" onClick={() => setView('main')}>← Retour</button>
           </>
         )}
+        <LangSelect className="iu-select iu-menu-lang" />
         <p className="iu-menu-foot muted small">Les parties sont sauvegardées dans ce navigateur. Les fichiers exportés sont compatibles avec ImperiumUrbis.exe.</p>
       </div>
     </div>

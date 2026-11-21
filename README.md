@@ -10,6 +10,19 @@ Bâtisseur de cités romaines en **React + Three.js**. Le site est servi par un 
 
 Le moteur (`src/game/engine/`) est le portage JavaScript du moteur Go d’`ImperiumUrbis.exe` : mêmes règles, et sauvegardes **compatibles dans les deux sens** (bouton « Exporter » dans le jeu, « Importer une sauvegarde » dans le menu).
 
+## Traduction du site
+
+Un sélecteur de langue (accueil, menu et barre du haut du jeu, page d’achat) traduit **tout le texte affiché** dans plus de 80 langues et écritures, de droite à gauche comprises (arabe, hébreu, persan, ourdou, kurde). Langue par défaut : celle du navigateur ; le choix est mémorisé (`imperium.lang`). Le français est la langue source.
+
+| Fichier | Rôle |
+|---|---|
+| `src/i18n/moteur.js` | Parcourt les nœuds texte et les attributs `title`, `placeholder`, `aria-label`, `alt` ; un `MutationObserver` traduit ensuite ce que React écrit (HUD, messages, fenêtres). Cache mémoire + `localStorage` (3 000 textes par langue). |
+| `src/i18n/mymemory.js` | Client du moteur **MyMemory** (gratuit, sans clé), requêtes de 380 caractères au plus, détection du quota épuisé. |
+| `src/i18n/masque.js` | Remplace nombres et noms propres par des repères (`Pop : {0}`) avant l'envoi : les chiffres qui changent à chaque tour ne génèrent aucune requête, et « Imperium Urbis », Stripe, etc. ne sont jamais traduits. |
+| `src/i18n/langues.js` | Liste des langues, détection de la langue du navigateur. |
+
+Ajouter `translate="no"` (ou la classe `notranslate`) à un élément l'exclut de la traduction. Si le quota gratuit est atteint, les textes restent en français et le sélecteur l'indique dans son infobulle ; `VITE_TRADUCTION_EMAIL` relève ce quota (voir `.env.example`). Les textes dessinés dans le canvas 3D, s'il y en avait, ne sont pas traduits.
+
 ## Démarrer
 
 ```bash
