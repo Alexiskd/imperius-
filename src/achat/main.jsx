@@ -3,7 +3,8 @@ import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { takePurchaseReturn } from '../paywall/purchase.js';
 import { capturePurchase } from '../paywall/api.js';
-import { money } from '../config.js';
+import { money, TRANSLATE_EMAIL } from '../config.js';
+import { startTranslation, LangSelect } from '../i18n/index.js';
 import '../home/site.css';
 
 // Lecture unique du retour, avant le premier rendu (l'adresse est nettoyée aussitôt).
@@ -39,6 +40,7 @@ function Achat() {
 
   return (
     <main className="achat">
+      <LangSelect className="achat-lang" />
       <div className="achat-card">
         <p className="kicker">Imperium Urbis</p>
         <h1>{content[0]}</h1>
@@ -54,4 +56,5 @@ function Achat() {
   );
 }
 
+startTranslation({ email: TRANSLATE_EMAIL });
 createRoot(document.getElementById('root')).render(<StrictMode><Achat /></StrictMode>);

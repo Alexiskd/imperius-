@@ -9,7 +9,7 @@
     "serveur": "node server/index.mjs",
     "build": "vite build",
     "start": "node server/index.mjs",
-    "test": "node tests/engine.test.mjs && node tests/purchase.test.mjs && node tests/server.test.mjs"
+    "test": "node tests/engine.test.mjs && node tests/purchase.test.mjs && node tests/server.test.mjs && node tests/i18n.test.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

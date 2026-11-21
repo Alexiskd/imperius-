@@ -1,6 +1,7 @@
 // Barre du haut, panneau latéral (construction, informations, gestion, objectifs) et messages.
 import { useEffect, useState } from 'react';
 import { K, DEFS, GOODS, G, CATEGORIES, HOUSE_NAMES, HOUSE_CAP, MONTHS, RAID_SIDES, PRIO_NAMES, isProducer, isProcessor } from '../engine/defs.js';
+import { LangSelect } from '../../i18n/index.js';
 import { TOOL_CLEAR, TOOL_NONE, HOTKEYS, OVERLAYS, areaTool } from '../constants.js';
 
 const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
@@ -50,6 +51,7 @@ export function TopBar({ game: g, speed, setSpeed, overlay, setOverlay, actions,
         {OVERLAYS.map((o, i) => <option key={o.name} value={i}>Calque : {o.name}</option>)}
       </select>
       <span className="gold strong date">{MONTHS[g.Month % 12]} an {g.year()}</span>
+      <LangSelect className="iu-select" />
       <Btn small onClick={actions.save} tip="Sauvegarder dans ce navigateur [Ctrl+S]" setHoverTip={setHoverTip}>Sauver</Btn>
       <Btn small onClick={actions.exportSave} tip="Télécharger la sauvegarde (compatible avec l'exe)" setHoverTip={setHoverTip}>Exporter</Btn>
       <Btn small onClick={() => setModal('help')} tip="Aide [H]" setHoverTip={setHoverTip}>Aide</Btn>

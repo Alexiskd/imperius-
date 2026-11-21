@@ -6,5 +6,8 @@ const env = import.meta.env || {};
 // Accès libre (développement uniquement) : le paywall est ignoré si VITE_ACCES_LIBRE vaut 1.
 export const FREE_ACCESS = env.VITE_ACCES_LIBRE === '1';
 
+// Adresse e-mail facultative transmise à MyMemory (moteur de traduction) : relève son quota gratuit de 5 000 à 50 000 caractères par jour.
+export const TRANSLATE_EMAIL = env.VITE_TRADUCTION_EMAIL || '';
+
 // money : met un montant en forme, en français, en euros, avec des décimales seulement si besoin.
 export const money = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: n % 1 ? 2 : 0 }).format(n);
