@@ -50,7 +50,7 @@ Il suffit de la **clé secrète** Stripe (`STRIPE_SECRET_KEY`, côté serveur un
 | Variable | Rôle |
 |---|---|
 | `STRIPE_SECRET_KEY` | `sk_test_…` (mode test) ou `sk_live_…`. Vide = « ventes pas encore ouvertes ». |
-| `PRIX` | Prix en euros (défaut 9.99). |
+| `PRIX` | Prix en euros (défaut 19.99). |
 | `COOKIE_SECRET` | Clé de signature du cookie (générée par Render ; sinon dérivée de la clé Stripe). |
 | `PUBLIC_URL` | Facultatif : adresse publique pour les retours Stripe. |
 
