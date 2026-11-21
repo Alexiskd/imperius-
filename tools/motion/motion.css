@@ -24,3 +24,24 @@ html, body { margin: 0; background: #000; overflow: hidden; }
 #end { opacity: 0; }
 #end h1 { margin: 0; font: 700 88px 'Cinzel', Georgia, serif; letter-spacing: .1em; text-shadow: 0 6px 30px rgba(0,0,0,.6); }
 #end .cta { margin-top: 30px; padding: 12px 30px; border-radius: 8px; background: #b3332a; font: 600 20px 'Inter', sans-serif; letter-spacing: .04em; box-shadow: 0 6px 24px rgba(179, 51, 42, .5); }
+#end .url { display: none; margin-top: 18px; font: 500 20px 'Inter', sans-serif; letter-spacing: .04em; color: #efe3c4; }
+
+/* ---------- Reel vertical 9:16 (720 × 1280 en CSS, rendu 1080 × 1920) ----------
+   Zones sûres Facebook/Instagram : rien d'important dans les 14 % du haut ni les 35 % du bas. */
+body.reel #stage { width: 720px; height: 1280px; }
+body.reel .letters { font-size: 88px; flex-wrap: wrap; justify-content: center; line-height: 1.05; }
+body.reel .letters .sp { flex-basis: 100%; height: 0; }
+body.reel .kicker { font-size: 17px; letter-spacing: .4em; }
+body.reel #rule, body.reel .rule { width: 420px; }
+body.reel .sub { font-size: 25px; max-width: 560px; line-height: 1.35; }
+body.reel #title, body.reel #end { justify-content: flex-start; padding-top: 330px; }
+body.reel #cap { left: 40px; right: 40px; bottom: auto; top: 210px; min-width: 0; padding: 24px 28px 22px 24px; }
+body.reel #capn { font-size: 54px; min-width: 66px; }
+body.reel #cap h2 { font-size: 44px; }
+body.reel #cap p { font-size: 22px; line-height: 1.35; }
+body.reel #prov { top: 470px; left: 60px; right: 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+body.reel #prov span { min-width: 0; padding: 14px 10px; }
+body.reel #prov b { font-size: 26px; }
+body.reel #end h1 { font-size: 76px; line-height: 1.05; max-width: 640px; }
+body.reel #end .cta { font-size: 24px; padding: 16px 34px; }
+body.reel #end .url { display: block; }

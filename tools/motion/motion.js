@@ -6,8 +6,11 @@ import { K, SCENARIOS, G } from '../../src/game/engine/defs.js';
 import { CityRenderer } from '../../src/game/render/CityRenderer.js';
 import { buildDemoCity, autoPlace } from '../../tests/demoCity.mjs';
 
+// Format : paysage 16:9 (accueil du site) ou vertical 9:16 (?reel : Reels Facebook / Instagram).
+export const REEL = new URLSearchParams(location.search).has('reel');
+if (REEL) document.body.classList.add('reel');
 export const DURATION = 24;
-export const FPS = 25;
+export const FPS = REEL ? 30 : 25;
 
 // Hasard reproductible : deux rendus donnent la même vidéo.
 let seed = 20260611;
@@ -96,7 +99,9 @@ function camAt(t) {
   let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1][0]) i++;
   const a = KEYS[i]; const b = KEYS[i + 1];
   const f = smooth((t - a[0]) / (b[0] - a[0]));
-  return { x: lerp(a[1], b[1], f), z: lerp(a[2], b[2], f), dist: lerp(a[3], b[3], f), yaw: lerp(a[4], b[4], f), pitch: lerp(a[5], b[5], f) };
+  // Vertical : l'image est 3,2 fois moins large, on recule la caméra pour garder la cité dans le cadre.
+  const zoom = REEL ? 1.55 : 1;
+  return { x: lerp(a[1], b[1], f), z: lerp(a[2], b[2], f), dist: lerp(a[3], b[3], f) * zoom, yaw: lerp(a[4], b[4], f), pitch: lerp(a[5], b[5], f) };
 }
 
 // ---------- titres ----------
@@ -152,7 +157,7 @@ window.__frame = (t) => {
   return true;
 };
 window.__ready = true;
-window.__meta = { DURATION, FPS };
+window.__meta = { DURATION, FPS, REEL, width: REEL ? 720 : 1280, height: REEL ? 1280 : 720, scale: REEL ? 1.5 : 1 };
 
 // Aperçu en direct si la page est ouverte normalement (?live).
 if (new URLSearchParams(location.search).has('live')) {
