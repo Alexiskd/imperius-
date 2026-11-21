@@ -7,9 +7,28 @@
 //   GET  /jeu.html           → le jeu, seulement avec un cookie d'achat valide (sinon /index.html#acheter)
 import { createServer } from 'node:http';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+// Fichiers .env : « Secret File » Render (/etc/secrets/.env) puis .env à la racine du projet.
+// Une variable déjà définie dans l'environnement n'est jamais écrasée.
+export function loadEnvFile(path, env = process.env) {
+  let text;
+  try { text = readFileSync(path, 'utf8'); } catch { return false; }
+  for (const raw of text.split(/\r?\n/)) {
+    const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/.exec(raw);
+    if (!m || raw.trimStart().startsWith('#')) continue;
+    let v = m[2];
+    if (/^(['"]).*\1$/.test(v)) v = v.slice(1, -1);
+    else v = v.replace(/\s+#.*$/, '');
+    if (env[m[1]] === undefined || env[m[1]] === '') env[m[1]] = v;
+  }
+  return true;
+}
+loadEnvFile('/etc/secrets/.env');
+loadEnvFile(fileURLToPath(new URL('../.env', import.meta.url)));
 
 const ROOT = resolve(fileURLToPath(new URL('../dist', import.meta.url)));
 const PORT = Number(process.env.PORT || 3000);
