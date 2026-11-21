@@ -27,7 +27,10 @@ export function loadEnvFile(path, env = process.env) {
   }
   return true;
 }
-loadEnvFile('/etc/secrets/.env');
+// Secret Files Render : le fichier doit se nommer « .env » ; d'autres noms courants sont essayés au cas où.
+const SECRET_PATHS = ['/etc/secrets/.env', '/etc/secrets/env', '/etc/secrets/env.txt', '/etc/secrets/.env.txt', '/etc/secrets/secret.env'];
+let secretFile = null;
+for (const p of SECRET_PATHS) { try { if (readFileSync(p, 'utf8')) { loadEnvFile(p); secretFile = p; break; } } catch { /* absent */ } }
 loadEnvFile(fileURLToPath(new URL('../.env', import.meta.url)));
 
 const ROOT = resolve(fileURLToPath(new URL('../dist', import.meta.url)));
@@ -168,6 +171,14 @@ export const server = createServer(async (req, res) => {
   }
 });
 
+// ---------- diagnostic de la clé Stripe (jamais la clé elle-même) ----------
+if (!KEY) {
+  console.warn(`⚠ STRIPE_SECRET_KEY absente : ventes et dons fermés (503 « Les ventes ne sont pas encore ouvertes. »).`);
+  console.warn(`  Secret File lu : ${secretFile || 'aucun (attendu : /etc/secrets/.env nommé exactement « .env » dans Render)'}`);
+  console.warn(`  Variable d'environnement : ${process.env.STRIPE_SECRET_KEY === undefined ? 'non définie' : 'définie mais vide'}.`);
+} else {
+  console.log(`Clé Stripe ${KEY.startsWith('sk_live_') || KEY.startsWith('rk_live_') ? 'live' : 'test'} chargée${secretFile ? ' depuis ' + secretFile : ''} : les ventes sont ouvertes.`);
+}
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   server.listen(PORT, () => console.log(`Imperium Urbis : http://localhost:${PORT} (Stripe ${KEY ? (KEY.includes('_live_') ? 'live' : 'test') : 'non configuré'})`));
 }
