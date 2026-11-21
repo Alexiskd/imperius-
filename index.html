@@ -8,11 +8,88 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Imperium Urbis — bâtisseur de cités romaines</title>
-    <meta name="description" content="Fondez une cité, gouvernez une province : un jeu de construction de villes romaines en 3D, jouable dans le navigateur." />
-    <meta property="og:title" content="Imperium Urbis" />
-    <meta property="og:description" content="Bâtisseur de cités romaines en 3D, jouable dans le navigateur." />
-    <meta property="og:image" content="./video/poster.jpg" />
+    <title>Imperium Urbis — jeu de construction de cités romaines en 3D dans le navigateur</title>
+    <meta name="description" content="Imperium Urbis : fondez une cité romaine, gouvernez quatre provinces de l’Empire. City-builder 3D jouable dans le navigateur, sans installation : 40 bâtiments, 12 marchandises, 7 niveaux de logement." />
+    <meta name="keywords" content="Imperium Urbis, city builder, jeu de construction, cité romaine, jeu de gestion, Rome antique, jeu navigateur, jeu 3D, Caesar" />
+    <meta name="author" content="Imperium Urbis" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1" />
+    <link rel="canonical" href="%SITE_URL%/" />
+    <link rel="alternate" hreflang="fr" href="%SITE_URL%/" />
+    <link rel="alternate" hreflang="x-default" href="%SITE_URL%/" />
+    <link rel="sitemap" type="application/xml" href="%SITE_URL%/sitemap.xml" />
+    <link rel="preload" as="image" href="./video/poster.jpg" />
+    <!--GOOGLE_VERIFICATION-->
+
+    <!-- Open Graph (Facebook, LinkedIn, Discord…) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Imperium Urbis" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:title" content="Imperium Urbis — fondez une cité, gouvernez une province" />
+    <meta property="og:description" content="City-builder romain en 3D, jouable dans le navigateur : campagne de 4 provinces, chaînes de production, villas et monuments." />
+    <meta property="og:image" content="%SITE_URL%/video/poster.jpg" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="720" />
+    <meta property="og:image:alt" content="Une cité romaine en 3D construite dans Imperium Urbis" />
+    <meta property="og:video" content="%SITE_URL%/video/presentation.mp4" />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta property="og:video:width" content="1280" />
+    <meta property="og:video:height" content="720" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Imperium Urbis — fondez une cité, gouvernez une province" />
+    <meta name="twitter:description" content="City-builder romain en 3D, jouable dans le navigateur." />
+    <meta name="twitter:image" content="%SITE_URL%/video/poster.jpg" />
+    <meta name="twitter:image:alt" content="Une cité romaine en 3D construite dans Imperium Urbis" />
+
+    <!-- Données structurées (Google) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "%SITE_URL%/#site",
+          "url": "%SITE_URL%/",
+          "name": "Imperium Urbis",
+          "inLanguage": "fr-FR"
+        },
+        {
+          "@type": ["VideoGame", "SoftwareApplication"],
+          "@id": "%SITE_URL%/#jeu",
+          "name": "Imperium Urbis",
+          "url": "%SITE_URL%/",
+          "description": "Jeu de construction et de gestion de cités romaines en 3D, jouable dans le navigateur : campagne de quatre provinces, 40 bâtiments, 12 marchandises et 7 niveaux de logement.",
+          "image": "%SITE_URL%/video/poster.jpg",
+          "genre": ["City-builder", "Gestion", "Stratégie"],
+          "gamePlatform": "Navigateur web",
+          "applicationCategory": "GameApplication",
+          "operatingSystem": "Windows, macOS, Linux, ChromeOS",
+          "playMode": "SinglePlayer",
+          "inLanguage": "fr-FR",
+          "offers": {
+            "@type": "Offer",
+            "price": "%PRIX%",
+            "priceCurrency": "EUR",
+            "availability": "https://schema.org/InStock",
+            "url": "%SITE_URL%/#prix"
+          },
+          "trailer": { "@id": "%SITE_URL%/#video" }
+        },
+        {
+          "@type": "VideoObject",
+          "@id": "%SITE_URL%/#video",
+          "name": "Imperium Urbis — vidéo de présentation",
+          "description": "Une cité romaine se construit sous vos yeux : routes, production, villas, monuments et défense des quatre provinces de la campagne.",
+          "thumbnailUrl": "%SITE_URL%/video/poster.jpg",
+          "contentUrl": "%SITE_URL%/video/presentation.mp4",
+          "uploadDate": "2026-11-21",
+          "duration": "PT24S"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
