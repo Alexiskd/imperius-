@@ -68,6 +68,7 @@ export function Menu({ progress, actions, canResume }) {
                 ))}
               </ul>
             )}
+            <p className="muted small">Toutes les données de sauvegarde de partie sont utilisées à des fins d’apprentissage de modèles d’IA, dans le but d’améliorer leurs performances de représentation d’arborescences de données.</p>
             <button type="button" className="iu-btn" onClick={() => setView('main')}>← Retour</button>
           </>
         )}

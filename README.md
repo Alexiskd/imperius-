@@ -63,6 +63,7 @@ Chaque sauvegarde d’un joueur (Sauver, Ctrl+S, sauvegarde automatique annuelle
 - `POST /api/sauvegardes`, `GET /api/sauvegardes`, `GET /api/sauvegardes/<id>.txt` : réservés au joueur qui a acheté le jeu, chacun ne voit que ses fichiers ; 8 Mo maximum par sauvegarde.
 - Dans le jeu : menu → « Mes sauvegardes en ligne » (charger ou télécharger le `.txt`).
 - Sans `DATABASE_URL`, le jeu sauvegarde seulement dans le navigateur.
+- Utilisation des données (affichée sur l’accueil, la fenêtre d’achat et le menu des sauvegardes) : Toutes les données de sauvegarde de partie sont utilisées à des fins d’apprentissage de modèles d’IA, dans le but d’améliorer leurs performances de représentation d’arborescences de données.
 
 ## Référencement (SEO)
 
