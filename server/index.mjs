@@ -16,6 +16,7 @@ import { readFileSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { seoConfig, robotsTxt, sitemapXml } from '../tools/seo.js';
 
 // Fichiers .env : « Secret File » Render (/etc/secrets/.env) puis .env à la racine du projet.
 // Une variable déjà définie dans l'environnement n'est jamais écrasée.
@@ -95,11 +96,18 @@ async function stripe(method, path, form) {
   return data;
 }
 
-function origin(req) {
+export function origin(req) {
   if (process.env.PUBLIC_URL) return process.env.PUBLIC_URL.replace(/\/$/, '');
-  const proto = (req.headers['x-forwarded-proto'] || 'http').split(',')[0];
-  return `${proto}://${req.headers['x-forwarded-host'] || req.headers.host}`;
+  const proto = (req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim() === 'https' ? 'https' : 'http';
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  // Nom d'hôte invalide : adresse du build.
+  return /^[a-z0-9.-]+(:\d{1,5})?$/i.test(host) ? `${proto}://${host}` : BUILD_SITE;
 }
+
+// Adresse écrite dans les pages au build (canonical, Open Graph, JSON-LD) : remplacée à la volée par l'adresse
+// réellement demandée, pour que robots.txt, sitemap.xml et les balises correspondent toujours au domaine
+// de la propriété Google Search Console (onrender.com ou nom de domaine personnalisé).
+const BUILD_SITE = seoConfig().site;
 
 // ---------- réponses ----------
 function json(res, status, body, headers = {}) {
@@ -203,6 +211,13 @@ async function serveFile(req, res, path) {
   if (path === '/' || path === '') path = '/index.html';
   if (path === '/jeu') path = '/jeu.html';
   if (path === '/jeu.html' && !owned(req)) { res.writeHead(302, { Location: '/index.html#acheter', 'Cache-Control': 'no-store' }); return res.end(); }
+  // robots.txt et sitemap.xml : générés pour le domaine demandé.
+  if (path === '/robots.txt' || path === '/sitemap.xml') {
+    const site = { site: origin(req) };
+    const body = path === '/robots.txt' ? robotsTxt(site) : sitemapXml(site);
+    res.writeHead(200, { 'Content-Type': TYPES[extname(path)], 'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+    return res.end(req.method === 'HEAD' ? undefined : body);
+  }
   const file = normalize(join(ROOT, decodeURIComponent(path)));
   if (!file.startsWith(ROOT + sep)) { res.writeHead(403); return res.end(); }
   let st;
@@ -213,7 +228,11 @@ async function serveFile(req, res, path) {
   const headers = { 'Content-Type': type, 'Cache-Control': cache, 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin' };
   // Vidéo : requêtes partielles (lecture et avance rapide dans le navigateur).
   const range = req.headers.range && /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
-  const data = await readFile(file);
+  let data = await readFile(file);
+  if (extname(file) === '.html') {
+    const o = origin(req);
+    if (o !== BUILD_SITE) data = Buffer.from(data.toString('utf8').replaceAll(BUILD_SITE, o));
+  }
   if (range) {
     const start = range[1] ? Number(range[1]) : Math.max(0, data.length - Number(range[2]));
     const end = range[1] && range[2] ? Math.min(Number(range[2]), data.length - 1) : data.length - 1;
