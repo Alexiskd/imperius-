@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 
 process.env.STRIPE_SECRET_KEY = 'sk_test_fauxpourlestests';
-process.env.PRIX = '9.99';
+process.env.PRIX = '19.99';
 const realFetch = globalThis.fetch;
 const calls = [];
 const SID = 'cs_test_a1B2c3D4e5F6g7H8';
@@ -37,7 +37,7 @@ const post = (p, body) => realFetch(B + p, { method: 'POST', body: JSON.stringif
 
 try {
   let r = await (await realFetch(`${B}/api/achat/config`)).json();
-  assert.deepEqual(r, { enabled: true, environment: 'test', price: 9.99, currency: 'EUR', owned: false });
+  assert.deepEqual(r, { enabled: true, environment: 'test', price: 19.99, currency: 'EUR', owned: false });
 
   r = await (await post('/api/achat/commande')).json();
   assert.equal(r.id, SID);

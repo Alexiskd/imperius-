@@ -11,7 +11,7 @@ services:
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: PRIX
-        value: "9.99"
+        value: "19.99"
       - key: COOKIE_SECRET
         generateValue: true
       - key: NODE_VERSION

@@ -39,7 +39,7 @@ const ROOT = resolve(fileURLToPath(new URL('../dist', import.meta.url)));
 const PORT = Number(process.env.PORT || 3000);
 const KEY = (process.env.STRIPE_SECRET_KEY || '').trim();
 // Prix en euros (centimes calculés côté serveur : le client ne choisit jamais le montant).
-const PRICE = Number(process.env.PRIX || process.env.VITE_PRIX || 9.99);
+const PRICE = Number(process.env.PRIX || process.env.VITE_PRIX || 19.99);
 const CENTS = Math.round(PRICE * 100);
 const COOKIE = 'imperium_achat';
 const MAX_AGE = 400 * 24 * 3600; // plafond des navigateurs
