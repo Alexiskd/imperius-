@@ -2,13 +2,14 @@
   "name": "imperium-urbis-web",
   "private": true,
   "version": "2.0.0",
-  "description": "Imperium Urbis — bâtisseur de cités romaines en React + Three.js, site statique avec paywall Stripe.",
+  "description": "Imperium Urbis — bâtisseur de cités romaines en React + Three.js, avec achat Stripe (serveur Node sans dépendance).",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "serveur": "node --env-file-if-exists=.env server/index.mjs",
     "build": "vite build",
-    "preview": "vite preview",
-    "test": "node tests/engine.test.mjs && node tests/purchase.test.mjs"
+    "start": "node server/index.mjs",
+    "test": "node tests/engine.test.mjs && node tests/purchase.test.mjs && node tests/server.test.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -19,5 +20,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "vite": "^5.4.11"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=20"
+  }
 }

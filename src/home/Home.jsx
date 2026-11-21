@@ -1,8 +1,9 @@
 // Page d'accueil : vidéo de présentation en motion design, présentation du jeu, prix et achat (paywall Stripe).
 import { useCallback, useEffect, useState } from 'react';
 import { Paywall } from '../paywall/Paywall.jsx';
-import { hasPurchase } from '../paywall/purchase.js';
-import { PRICE, PAYMENT_LINK, money } from '../config.js';
+import { usePurchaseConfig } from '../paywall/api.js';
+import { takePurchaseReturn } from '../paywall/purchase.js';
+import { money } from '../config.js';
 import { SCENARIOS } from '../game/engine/defs.js';
 
 const FEATURES = [
@@ -21,13 +22,20 @@ const FAQ = [
   ['Où sont mes parties ?', 'Dans le stockage de votre navigateur. Le bouton « Exporter » télécharge un fichier de sauvegarde que vous pouvez réimporter ici ou ouvrir dans la version Windows.'],
 ];
 
+// Retour d'un paiement abandonné chez Stripe (index.html?achat=annule#acheter), lu une seule fois.
+const back = takePurchaseReturn();
+
 export default function Home() {
   const [pay, setPay] = useState(false);
-  const owned = hasPurchase();
+  const [notice] = useState(back && back.kind === 'cancelled' ? 'Paiement annulé : rien n’a été prélevé.' : '');
+  // Configuration de la vente (prix, ouverture, achat déjà fait), rechargée à la fermeture de la fenêtre d'achat.
+  const { config, reload } = usePurchaseConfig();
+  const owned = Boolean(config?.owned);
+  const price = config?.price;
 
-  // #acheter dans l'adresse (renvoi depuis jeu.html sans achat) : ouvre la fenêtre d'achat.
+  // #acheter dans l'adresse (renvoi depuis jeu.html sans achat, ou paiement abandonné) : ouvre la fenêtre d'achat.
   useEffect(() => {
-    const check = () => { if (window.location.hash === '#acheter' && !hasPurchase()) setPay(true); };
+    const check = () => { if (window.location.hash === '#acheter') setPay(true); };
     check();
     window.addEventListener('hashchange', check);
     return () => window.removeEventListener('hashchange', check);
@@ -35,12 +43,13 @@ export default function Home() {
 
   const close = useCallback(() => {
     setPay(false);
+    reload();
     if (window.location.hash === '#acheter') window.history.replaceState(null, '', window.location.pathname + window.location.search);
-  }, []);
+  }, [reload]);
 
   const Cta = ({ big }) => (owned
     ? <a className={`btn primary ${big ? 'big' : ''}`} href="./jeu.html">Jouer</a>
-    : <button type="button" className={`btn primary ${big ? 'big' : ''}`} onClick={() => setPay(true)}>Acheter le jeu · {money(PRICE)}</button>);
+    : <button type="button" className={`btn primary ${big ? 'big' : ''}`} onClick={() => setPay(true)}>Acheter le jeu{price ? ` · ${money(price)}` : ''}</button>);
 
   return (
     <>
@@ -106,7 +115,7 @@ export default function Home() {
         <section id="prix" className="price">
           <div className="price-card">
             <p className="kicker">Version complète</p>
-            <h2>{money(PRICE)}</h2>
+            <h2>{price ? money(price) : '—'}</h2>
             <p className="muted">paiement unique</p>
             <ul>
               <li>Campagne complète (4 provinces) et partie libre</li>
@@ -115,7 +124,7 @@ export default function Home() {
               <li>Mises à jour du jeu incluses</li>
             </ul>
             <Cta big />
-            <p className="small muted">{PAYMENT_LINK || owned ? 'Paiement sécurisé par Stripe.' : 'Les ventes ouvriront bientôt.'}</p>
+            <p className="small muted">{!config || config.enabled || owned ? 'Paiement sécurisé par Stripe.' : 'Les ventes ouvriront bientôt.'}</p>
           </div>
         </section>
 
@@ -135,7 +144,7 @@ export default function Home() {
         <span className="muted">React · Three.js · paiements Stripe</span>
       </footer>
 
-      <Paywall open={pay} onClose={close} />
+      <Paywall open={pay} onClose={close} notice={notice} />
     </>
   );
 }

@@ -33,3 +33,5 @@
   .pw-bg { padding: 0; place-items: stretch; }
   .pw-dialog { width: 100%; max-height: none; border-radius: 0; }
 }
+.pw-wait { display: grid; place-items: center; padding: 28px 0; }
+.pw-spin.big { width: 34px; height: 34px; border-width: 3px; border-color: rgba(224, 180, 76, .25); border-top-color: #e0b44c; }

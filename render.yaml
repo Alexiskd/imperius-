@@ -1,25 +1,18 @@
 services:
   - type: web
-    runtime: static
-    name: imperium-urbis
+    runtime: node
+    name: imperium-urbis-app
+    plan: free
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    pullRequestPreviewsEnabled: false
+    startCommand: npm start
+    healthCheckPath: /index.html
+    autoDeployTrigger: commit
     envVars:
-      - key: VITE_STRIPE_PAYMENT_LINK
+      - key: STRIPE_SECRET_KEY
         sync: false
-      - key: VITE_PRIX
+      - key: PRIX
         value: "9.99"
-    headers:
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-      - path: /*
-        name: Referrer-Policy
-        value: strict-origin-when-cross-origin
-      - path: /video/*
-        name: Cache-Control
-        value: public, max-age=604800
-      - path: /assets/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: NODE_VERSION
+        value: "20"

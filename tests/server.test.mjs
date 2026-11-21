@@ -1,0 +1,69 @@
+// Tests du serveur d'achat : Stripe est simulé, aucun appel réseau réel.
+import assert from 'node:assert/strict';
+
+process.env.STRIPE_SECRET_KEY = 'sk_test_fauxpourlestests';
+process.env.PRIX = '9.99';
+const realFetch = globalThis.fetch;
+const calls = [];
+const SID = 'cs_test_a1B2c3D4e5F6g7H8';
+let paid = 'paid';
+globalThis.fetch = async (url, opts = {}) => {
+  if (String(url).startsWith('https://api.stripe.com/')) {
+    calls.push({ url: String(url), opts });
+    assert.equal(opts.headers.Authorization, 'Bearer sk_test_fauxpourlestests');
+    if (opts.method === 'POST') return new Response(JSON.stringify({ id: SID, url: 'https://checkout.stripe.com/c/pay/' + SID }), { status: 200 });
+    return new Response(JSON.stringify({ id: SID, payment_status: paid, amount_total: 999, metadata: { produit: 'imperium-urbis' } }), { status: 200 });
+  }
+  return realFetch(url, opts);
+};
+
+const { server, makeToken, checkToken } = await import('../server/index.mjs');
+await new Promise((r) => server.listen(0, r));
+const B = `http://127.0.0.1:${server.address().port}`;
+const post = (p, body) => realFetch(B + p, { method: 'POST', body: JSON.stringify(body || {}), headers: { 'Content-Type': 'application/json' } });
+
+try {
+  let r = await (await realFetch(`${B}/api/achat/config`)).json();
+  assert.deepEqual(r, { enabled: true, environment: 'test', price: 9.99, currency: 'EUR', owned: false });
+
+  r = await (await post('/api/achat/commande')).json();
+  assert.equal(r.id, SID);
+  const form = new URLSearchParams(calls[0].opts.body);
+  assert.equal(form.get('line_items[0][price_data][unit_amount]'), '999');
+  assert.equal(form.get('mode'), 'payment');
+  assert.match(form.get('success_url'), /\/achat\.html\?achat=merci&session_id=\{CHECKOUT_SESSION_ID\}$/);
+
+  // jeu.html protégé sans cookie
+  let res = await realFetch(`${B}/jeu.html`, { redirect: 'manual' });
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.get('location'), '/index.html#acheter');
+
+  // identifiant mal formé, paiement non payé
+  assert.equal((await post('/api/achat/capture', { id: 'nimportequoi' })).status, 400);
+  paid = 'unpaid';
+  assert.equal((await post('/api/achat/capture', { id: SID })).status, 402);
+
+  // paiement confirmé : cookie signé HttpOnly
+  paid = 'paid';
+  res = await post('/api/achat/capture', { id: SID });
+  assert.equal(res.status, 200);
+  const cookie = res.headers.get('set-cookie');
+  assert.match(cookie, /^imperium_achat=.+; Max-Age=34560000; Path=\/; HttpOnly; SameSite=Lax$/);
+  const jar = cookie.split(';')[0];
+  r = await (await realFetch(`${B}/api/achat/config`, { headers: { cookie: jar } })).json();
+  assert.equal(r.owned, true);
+
+  // cookie falsifié refusé
+  assert.ok(checkToken(makeToken(SID)));
+  assert.ok(!checkToken(`${SID}.faux`));
+  assert.ok(!checkToken(makeToken(SID).replace('a1B2', 'a1B3')));
+  r = await (await realFetch(`${B}/api/achat/config`, { headers: { cookie: `imperium_achat=${SID}.AAAA` } })).json();
+  assert.equal(r.owned, false);
+
+  // pas de sortie du dossier publié
+  res = await realFetch(`${B}/..%2fpackage.json`);
+  assert.ok([403, 404].includes(res.status));
+  console.log('server: ok');
+} finally {
+  server.close();
+}
