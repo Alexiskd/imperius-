@@ -20,6 +20,8 @@ jobs:
         run: |
           test -f dist/index.html && test -f dist/jeu.html && test -f dist/achat.html
           test -f dist/video/presentation.mp4
+          test -f dist/robots.txt && grep -q "Sitemap:" dist/robots.txt && test -f dist/sitemap.xml
+          ! grep -q "%SITE_URL%" dist/index.html
           (PORT=3999 node server/index.mjs &) && sleep 1
           curl -fsS http://localhost:3999/api/achat/config
           test "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3999/jeu.html)" = 302
