@@ -1,15 +1,16 @@
-// Entrée de jeu.html : n'ouvre le jeu que si l'achat est enregistré dans le cookie, sinon retour à l'accueil.
+// Entrée de jeu.html. Le serveur ne sert cette page qu'avec un cookie d'achat valide ;
+// la configuration est revérifiée ici (utile en développement), sinon retour à l'accueil.
 import { createRoot } from 'react-dom/client';
-import { hasPurchase, readPurchase, savePurchase } from '../paywall/purchase.js';
+import { fetchPurchaseConfig } from '../paywall/api.js';
+import { FREE_ACCESS } from '../config.js';
 import GameApp from './GameApp.jsx';
 import './game.css';
 
-if (!hasPurchase()) {
-  window.location.replace('./index.html#acheter');
-} else {
-  // Prolonge le cookie d'achat à chaque partie (les navigateurs plafonnent sa durée à 400 jours).
-  const id = readPurchase();
-  if (id) savePurchase(id);
-  // Sans StrictMode : un seul contexte WebGL par canvas.
-  createRoot(document.getElementById('root')).render(<GameApp />);
+const start = () => createRoot(document.getElementById('root')).render(<GameApp />); // sans StrictMode : un seul contexte WebGL
+if (FREE_ACCESS) start();
+else {
+  fetchPurchaseConfig().then(
+    (c) => (c.owned ? start() : window.location.replace('./index.html#acheter')),
+    () => window.location.replace('./index.html#acheter'),
+  );
 }
