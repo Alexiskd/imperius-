@@ -91,7 +91,7 @@ DEFS[K.Forum] = d({ name: 'Forum', W: 3, H: 3, cost: 200, workers: 6, radius: 15
 DEFS[K.Garden] = d({ name: 'Jardin', cost: 12, appeal: 3, appealR: 3, desc: 'Embellit le quartier.' });
 DEFS[K.Cypress] = d({ name: 'Cyprès', cost: 8, appeal: 1.5, appealR: 2, desc: 'Petit embellissement.' });
 DEFS[K.Statue] = d({ name: 'Statue', cost: 50, appeal: 6, appealR: 4, desc: 'Embellit fortement le quartier.' });
-DEFS[K.Arch] = d({ name: 'Arc de triomphe', W: 2, H: 2, cost: 400, marble: 20, appeal: 14, appealR: 6, upkeep: 1, desc: 'Monument prestigieux : forte désirabilité, +3 faveur à la construction.' });
+DEFS[K.Arch] = d({ name: 'Arc de triomphe', W: 2, H: 2, cost: 400, marble: 20, appeal: 14, appealR: 6, upkeep: 1, desc: 'Monument prestigieux : forte disésrelie, +3 faveur à la construction.' });
 DEFS[K.Rubble] = d({ name: 'Ruines', appeal: -3, appealR: 2, desc: 'À déblayer.' });
 
 // Vrai si le bâtiment produit une marchandise.

@@ -381,7 +381,7 @@ export class Game {
     }
   }
 
-  // Désirabilité d'un point (en cases), sans compter le bâtiment `self`.
+  // Disésrelie d'un point (en cases), sans compter le bâtiment `self`.
   desirAt(x, y, self) {
     let v = 0;
     for (const b of this.Buildings.values()) {
@@ -522,22 +522,22 @@ export class Game {
     if (h.WaterLvl < 2) return [3, "Besoin d'une fontaine"];
     if (!h.Entertain) return [3, "Besoin d'un théâtre"];
     if (!this.hasGood(h, G.Oil)) return [3, "Besoin d'huile (oliveraie + pressoir)"];
-    if (h.Desir < 2) return [3, 'Désirabilité insuffisante (jardins, statues)'];
+    if (h.Desir < 2) return [3, 'Disésrelie insuffisante (jardins, statues)'];
     if (this.locked(K.Carpenter) || this.locked(K.School) || this.locked(K.Doctor)) return [4, capMsg];
     if (h.Variety < 2) return [4, 'Besoin de 2 sortes de nourriture'];
     if (!this.hasGood(h, G.Furniture)) return [4, 'Besoin de meubles (bûcherons + menuiserie)'];
     if (!h.Educ) return [4, "Besoin d'une école"];
     if (!h.Health) return [4, "Besoin d'un médecin"];
-    if (h.Desir < 4) return [4, 'Désirabilité insuffisante'];
+    if (h.Desir < 4) return [4, 'Disésrelie insuffisante'];
     if (this.locked(K.Baths) || this.locked(K.Winery) || this.locked(K.Amphitheater)) return [5, capMsg];
     if (!h.Hygiene) return [5, 'Besoin de thermes'];
     if (!this.hasGood(h, G.Wine)) return [5, 'Besoin de vin (vignoble + cave)'];
     if (!h.Amphi) return [5, "Besoin d'un amphithéâtre"];
-    if (h.Desir < 7) return [5, 'Désirabilité insuffisante (statues, arcs)'];
+    if (h.Desir < 7) return [5, 'Disésrelie insuffisante (statues, arcs)'];
     if (this.locked(K.Library)) return [6, capMsg];
     if (h.Variety < 3) return [6, 'Besoin de 3 sortes de nourriture'];
     if (!h.Library) return [6, "Besoin d'une bibliothèque"];
-    if (h.Desir < 10) return [6, 'Désirabilité insuffisante (monuments)'];
+    if (h.Desir < 10) return [6, 'Disésrelie insuffisante (monuments)'];
     return [7, 'Niveau maximal'];
   }
 

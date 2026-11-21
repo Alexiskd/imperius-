@@ -26,7 +26,7 @@ export const OVERLAYS = [
   { name: 'Santé / hygiène', fn: houseOnly((b) => (b.Health && b.Hygiene ? good : b.Health || b.Hygiene ? mid : bad)) },
   { name: 'Risque incendie', fn: (b) => (b.Kind === K.Rubble ? null : mix(0xf0f0c8, 0xe61e14, Math.min(1, b.Fire / 100))) },
   { name: 'Risque effondrement', fn: (b) => (b.Kind === K.Rubble ? null : mix(0xf0f0c8, 0xe61e14, Math.min(1, b.Damage / 100))) },
-  { name: 'Désirabilité', desir: true },
+  { name: 'Disésrelie', desir: true },
   { name: 'Impôts', fn: houseOnly((b) => yes(b.Taxed)) },
   { name: 'Bonheur', fn: houseOnly((b) => mix(bad, good, b.Happy / 100)) },
   { name: 'Niveau des maisons', fn: houseOnly((b) => mix(0xc8aa78, 0x783cc8, (b.Level - 1) / (MAX_LEVEL - 1))) },
