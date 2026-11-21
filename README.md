@@ -56,6 +56,15 @@ Il suffit de la **clé secrète** Stripe (`STRIPE_SECRET_KEY`, côté serveur un
 
 Carte de test : `4242 4242 4242 4242`, date future, CVC quelconque.
 
+## Sauvegardes en ligne (base BP)
+
+Chaque sauvegarde d’un joueur (Sauver, Ctrl+S, sauvegarde automatique annuelle, Exporter) est aussi envoyée au serveur, qui l’enregistre en **fichier texte `.txt`** dans la base PostgreSQL **BP** (`DATABASE_URL`), table `imperium_sauvegardes` créée automatiquement : `joueur` (session Stripe de l’achat), `emplacement`, `nom_fichier` (`imperium_<joueur>_<emplacement>_<date>.txt`), `contenu` (partie au format JSON de l’exe), `taille`, `cree_le`.
+
+- `POST /api/sauvegardes`, `GET /api/sauvegardes`, `GET /api/sauvegardes/<id>.txt` : réservés au joueur qui a acheté le jeu, chacun ne voit que ses fichiers ; 8 Mo maximum par sauvegarde.
+- Dans le jeu : menu → « Mes sauvegardes en ligne » (charger ou télécharger le `.txt`).
+- Sans `DATABASE_URL`, le jeu sauvegarde seulement dans le navigateur.
+- Utilisation des données (affichée sur l’accueil, la fenêtre d’achat et le menu des sauvegardes) : Toutes les données de sauvegarde de partie sont utilisées à des fins d’apprentissage de modèles d’IA, dans le but d’améliorer leurs performances de représentation d’arborescences de données.
+
 ## Référencement (SEO)
 
 - `index.html` : titre et description, `canonical`, `robots`, Open Graph et Twitter (image et vidéo), données structurées JSON-LD (`WebSite`, `VideoGame` avec l’offre, `VideoObject`). `jeu.html` et `achat.html` sont en `noindex`.

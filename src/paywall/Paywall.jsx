@@ -93,6 +93,7 @@ export function Paywall({ open, onClose, notice: initialNotice = '' }) {
                     Paiement par carte bancaire sur la page sécurisée de Stripe, puis retour ici et ouverture du jeu.
                     Imperium Urbis ne voit jamais vos coordonnées bancaires.
                   </p>
+                  <p className="pw-caption">Toutes les données de sauvegarde de partie sont utilisées à des fins d’apprentissage de modèles d’IA, dans le but d’améliorer leurs performances de représentation d’arborescences de données.</p>
                 </>
               )}
             </>

@@ -20,7 +20,8 @@ const FAQ = [
   ['Faut-il installer quelque chose ?', 'Non. Le jeu tourne dans votre navigateur (Chrome, Edge, Firefox, Safari récents) grâce à WebGL. Un ordinateur avec souris est recommandé.'],
   ['Comment se passe le paiement ?', 'Par carte bancaire sur la page sécurisée de Stripe. Une fois le paiement validé, vous revenez ici et le jeu s’ouvre directement.'],
   ['Mon achat est-il conservé ?', 'L’achat est mémorisé par un cookie sur le navigateur utilisé pour payer. Si vous effacez vos cookies ou changez d’appareil, gardez votre reçu Stripe et contactez-nous.'],
-  ['Où sont mes parties ?', 'Dans le stockage de votre navigateur. Le bouton « Exporter » télécharge un fichier de sauvegarde que vous pouvez réimporter ici ou ouvrir dans la version Windows.'],
+  ['Où sont mes parties ?', 'Dans le stockage de votre navigateur, avec une copie en ligne de chaque sauvegarde (fichier .txt) dans notre base de données. Le bouton « Exporter » télécharge un fichier de sauvegarde que vous pouvez réimporter ici ou ouvrir dans la version Windows.'],
+  ['Que deviennent mes données de sauvegarde ?', 'Toutes les données de sauvegarde de partie sont utilisées à des fins d’apprentissage de modèles d’IA, dans le but d’améliorer leurs performances de représentation d’arborescences de données.'],
 ];
 
 // Retour d'un paiement abandonné chez Stripe (index.html?achat=annule#acheter), lu une seule fois.
@@ -127,6 +128,7 @@ export default function Home() {
             </ul>
             <Cta big />
             <p className="small muted">{!config || config.enabled || owned ? 'Paiement sécurisé par Stripe.' : 'Les ventes ouvriront bientôt.'}</p>
+            <p className="small muted data-note">Toutes les données de sauvegarde de partie sont utilisées à des fins d’apprentissage de modèles d’IA, dans le but d’améliorer leurs performances de représentation d’arborescences de données.</p>
           </div>
         </section>
 
