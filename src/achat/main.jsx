@@ -5,6 +5,7 @@ import { takePurchaseReturn } from '../paywall/purchase.js';
 import { capturePurchase } from '../paywall/api.js';
 import { money, TRANSLATE_EMAIL } from '../config.js';
 import { startTranslation, LangSelect } from '../i18n/index.js';
+import { mountDataBanner } from '../shared/dataBanner.js';
 import '../home/site.css';
 
 // Lecture unique du retour, avant le premier rendu (l'adresse est nettoyée aussitôt).
@@ -57,4 +58,5 @@ function Achat() {
 }
 
 startTranslation({ email: TRANSLATE_EMAIL });
+mountDataBanner(); // bandeau « données utilisées pour l'entraînement d'IA », tout en haut de la page
 createRoot(document.getElementById('root')).render(<StrictMode><Achat /></StrictMode>);

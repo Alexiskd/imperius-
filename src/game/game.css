@@ -19,7 +19,7 @@ html, body, #root { margin: 0; height: 100%; background: var(--iu-bg); color: va
 body { font: 13px/1.35 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
 h1, h2, h3, h4, .iu-menu .kicker { font-family: 'Cinzel', Georgia, 'Times New Roman', serif; }
 
-.iu-root { position: fixed; inset: 0; display: grid; grid-template-columns: 1fr var(--iu-side); grid-template-rows: var(--iu-top) 1fr; user-select: none; }
+.iu-root { position: fixed; inset: var(--db-h, 0px) 0 0 0; display: grid; grid-template-columns: 1fr var(--iu-side); grid-template-rows: var(--iu-top) 1fr; user-select: none; }
 .iu-map { grid-column: 1 / 2; grid-row: 1 / 3; position: relative; overflow: hidden; min-width: 0; }
 .iu-root:has(.iu-menu) .iu-map { grid-column: 1 / 3; }
 .iu-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
@@ -95,8 +95,8 @@ h1, h2, h3, h4, .iu-menu .kicker { font-family: 'Cinzel', Georgia, 'Times New Ro
 .iu-lost button { font: inherit; font-size: 16px; padding: 10px 20px; justify-self: center; cursor: pointer; }
 
 /* fenêtres */
-.iu-modal-bg { position: fixed; inset: 0; z-index: 10; background: rgba(8, 6, 4, .62); display: grid; place-items: center; padding: 16px; }
-.iu-modal { width: min(620px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #1f1913; border: 1px solid var(--iu-gold); border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.iu-modal-bg { position: fixed; inset: var(--db-h, 0px) 0 0 0; z-index: 10; background: rgba(8, 6, 4, .62); display: grid; place-items: center; padding: 16px; }
+.iu-modal { width: min(620px, 100%); max-height: calc(100vh - 32px - var(--db-h, 0px)); display: flex; flex-direction: column; background: #1f1913; border: 1px solid var(--iu-gold); border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
 .iu-modal.wide { width: min(980px, 100%); }
 .iu-modal header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--iu-line); font: 700 18px 'Cinzel', Georgia, serif; color: var(--iu-gold); }
 .iu-modal header .x { background: none; border: 0; color: var(--iu-muted); font-size: 24px; cursor: pointer; line-height: 1; }
@@ -115,7 +115,7 @@ h1, h2, h3, h4, .iu-menu .kicker { font-family: 'Cinzel', Georgia, 'Times New Ro
 
 /* menu */
 .iu-menu { position: absolute; inset: 0; z-index: 8; display: grid; place-items: center; padding: 16px; background: radial-gradient(ellipse at center, rgba(10,8,6,.15), rgba(10,8,6,.7)); }
-.iu-menu-card { width: min(440px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; padding: 26px 28px; background: rgba(24, 19, 14, .9); border: 1px solid var(--iu-gold); border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.6); backdrop-filter: blur(4px); }
+.iu-menu-card { width: min(440px, 100%); max-height: calc(100vh - 32px - var(--db-h, 0px)); overflow-y: auto; padding: 26px 28px; background: rgba(24, 19, 14, .9); border: 1px solid var(--iu-gold); border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.6); backdrop-filter: blur(4px); }
 .iu-menu .kicker { margin: 0; color: var(--iu-gold); letter-spacing: .25em; text-transform: uppercase; font-size: 11px; }
 .iu-menu h1 { margin: 4px 0 18px; font-size: 38px; color: #fff4d6; letter-spacing: .04em; }
 .iu-menu-list { display: flex; flex-direction: column; gap: 7px; }

@@ -1,0 +1,6 @@
+/* Bandeau « données utilisées pour l'entraînement d'IA » : tout en haut, pleine largeur, au-dessus de tout. */
+.data-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 12px; padding: 9px 16px; background: #e0b44c; color: #15110d; border-bottom: 2px solid #b3332a; font: 700 14px/1.35 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; text-align: center; box-shadow: 0 2px 12px rgba(0, 0, 0, .45); user-select: text; }
+.data-banner-icon { font-size: 17px; line-height: 1; }
+.data-banner-link { color: #15110d; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.data-banner-link:hover, .data-banner-link:focus-visible { color: #7a1f19; outline: none; }
+@media (max-width: 600px) { .data-banner { font-size: 12.5px; padding: 7px 10px; } }
