@@ -4,6 +4,7 @@
 //   GET  /api/achat/config   → { enabled, environment, price, currency, owned }
 //   POST /api/achat/commande → crée une session Stripe Checkout → { id, url }
 //   POST /api/achat/capture  → { id } : vérifie la session auprès de Stripe, pose le cookie signé → { ok }
+//   POST /api/achat/oeuf     → easter egg des mentions légales : accès gratuit (cookie signé d'un joueur anonyme) → { ok }
 //   GET  /jeu.html           → le jeu, seulement avec un cookie d'achat valide (sinon /index.html#acheter)
 // Dons (méthode reprise de GobaiWebService) : montant libre validé côté serveur, page de paiement hébergée par Stripe.
 //   GET  /api/dons/config   → { enabled, environment, minAmount }
@@ -11,7 +12,7 @@
 //   POST /api/dons/capture  → { id } confirme le don payé auprès de Stripe → { ok, amount }
 //   POST /api/dons/annule   → { id } ferme la page de paiement d'un don abandonné → { ok }
 import { createServer } from 'node:http';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';
@@ -48,6 +49,9 @@ const MAX_AGE = 400 * 24 * 3600; // plafond des navigateurs
 // Clé de signature du cookie : COOKIE_SECRET, sinon dérivée de la clé Stripe.
 const SIGN_KEY = process.env.COOKIE_SECRET || createHmac('sha256', 'imperium-urbis-cookie').update(KEY || 'dev').digest('hex');
 export const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{8,250}$/;
+// Joueur anonyme entré par l'easter egg des mentions légales : « j_ » puis 24 caractères base64url.
+export const JOUEUR_ID = /^j_[A-Za-z0-9_-]{24}$/;
+export const nouveauJoueur = () => `j_${randomBytes(18).toString('base64url')}`;
 const FREE = process.env.ACCES_LIBRE === '1';
 
 // ---------- dons (méthode de GobaiWebService : Stripe Checkout hébergé) ----------
@@ -73,14 +77,14 @@ export function checkToken(token) {
   if (i < 0) return false;
   const id = token.slice(0, i); const mac = Buffer.from(token.slice(i + 1));
   const good = Buffer.from(sign(id));
-  return SESSION_ID.test(id) && mac.length === good.length && timingSafeEqual(mac, good);
+  return (SESSION_ID.test(id) || JOUEUR_ID.test(id)) && mac.length === good.length && timingSafeEqual(mac, good);
 }
 function readCookie(req) {
   const m = (req.headers.cookie || '').split(/;\s*/).find((c) => c.startsWith(`${COOKIE}=`));
   return m ? decodeURIComponent(m.slice(COOKIE.length + 1)) : '';
 }
 const owned = (req) => FREE || checkToken(readCookie(req));
-// Joueur : la session Stripe de son achat (cookie signé), ou « acces-libre » en développement.
+// Joueur : la session Stripe de son achat, ou son identifiant anonyme (easter egg), ou « acces-libre » en développement.
 export function joueurDe(req) {
   const t = readCookie(req);
   if (checkToken(t)) return t.slice(0, t.lastIndexOf('.'));
@@ -175,6 +179,12 @@ async function api(req, res, path) {
     const s = await stripe('GET', `/checkout/sessions/${encodeURIComponent(id)}`);
     if (s.payment_status !== 'paid' || s.metadata?.produit !== 'imperium-urbis') return json(res, 402, { error: 'Paiement non confirmé par Stripe.' });
     return json(res, 200, { ok: true, amount: (s.amount_total || 0) / 100 }, { 'Set-Cookie': cookieHeader(req, makeToken(id), MAX_AGE) });
+  }
+  // Easter egg (bouton « start » des mentions légales) : même cookie signé qu'un achat, avec un identifiant anonyme.
+  // Un accès déjà valide (achat ou easter egg) est gardé tel quel, pour ne pas séparer le joueur de ses sauvegardes.
+  if (path === '/api/achat/oeuf' && req.method === 'POST') {
+    if (checkToken(readCookie(req))) return json(res, 200, { ok: true });
+    return json(res, 200, { ok: true }, { 'Set-Cookie': cookieHeader(req, makeToken(nouveauJoueur()), MAX_AGE) });
   }
   if (path === '/api/achat/oublier' && req.method === 'POST') {
     return json(res, 200, { ok: true }, { 'Set-Cookie': cookieHeader(req, '', 0) });

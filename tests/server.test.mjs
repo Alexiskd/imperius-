@@ -73,6 +73,21 @@ try {
   r = await (await realFetch(`${B}/api/achat/config`, { headers: { cookie: `imperium_achat=${SID}.AAAA` } })).json();
   assert.equal(r.owned, false);
 
+  // easter egg des mentions légales : cookie signé anonyme, jeu.html accessible
+  const avant = calls.length;
+  res = await post('/api/achat/oeuf');
+  assert.equal(res.status, 200);
+  const egg = res.headers.get('set-cookie').split(';')[0];
+  assert.match(egg, /^imperium_achat=j_[A-Za-z0-9_-]{24}\./);
+  r = await (await realFetch(`${B}/api/achat/config`, { headers: { cookie: egg } })).json();
+  assert.equal(r.owned, true);
+  res = await realFetch(`${B}/jeu.html`, { headers: { cookie: egg }, redirect: 'manual' });
+  assert.notEqual(res.status, 302);
+  // accès déjà valide : pas de nouveau cookie
+  res = await realFetch(`${B}/api/achat/oeuf`, { method: 'POST', body: '{}', headers: { cookie: egg } });
+  assert.equal(res.headers.get('set-cookie'), null);
+  assert.equal(calls.length, avant); // aucun appel à Stripe
+
   // pas de sortie du dossier publié
   res = await realFetch(`${B}/..%2fpackage.json`);
   assert.ok([403, 404].includes(res.status));

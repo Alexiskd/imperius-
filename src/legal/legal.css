@@ -1,0 +1,10 @@
+/* Mentions légales : fenêtre plus large que celle de l'achat, texte compact. */
+.legal-dialog { width: min(560px, 100%); }
+.legal-title { margin: 0; font: 600 20px 'Cinzel', serif; color: #fff4d6; }
+.legal-content { gap: 14px; }
+.legal-content h3 { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #e0b44c; }
+.legal-content p { margin: 0; color: #b9ab90; font-size: 13.5px; line-height: 1.55; }
+.legal-content a { color: #e8d3a3; }
+/* Easter egg : minuscule, couleur du fond, révélé seulement au survol ou au clavier. */
+.legal-egg { align-self: flex-end; margin-top: -6px; padding: 0 2px; border: 0; background: none; color: #2a221a; font: 10px/1 'Inter', system-ui, sans-serif; letter-spacing: .08em; cursor: default; opacity: .55; transition: color .3s, opacity .3s; }
+.legal-egg:hover, .legal-egg:focus-visible { color: #e0b44c; opacity: 1; cursor: pointer; outline: none; }

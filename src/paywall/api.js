@@ -13,6 +13,8 @@ async function call(path, options = {}) {
 export const fetchPurchaseConfig = (signal) => call('config', { signal });
 /** Crée la session de paiement Stripe : { id, url }. */
 export const createPurchaseOrder = () => call('commande', { method: 'POST', body: '{}' });
+/** Easter egg des mentions légales : accès gratuit au jeu (cookie d'accès signé posé par le serveur) : { ok }. */
+export const unlockEasterEgg = () => call('oeuf', { method: 'POST', body: '{}' });
 /** Fait vérifier le paiement par le serveur, qui pose le cookie d'achat : { ok, amount }. */
 export const capturePurchase = (id) => call('capture', { method: 'POST', body: JSON.stringify({ id }) });
 
