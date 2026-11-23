@@ -37,7 +37,7 @@ const post = (p, body) => realFetch(B + p, { method: 'POST', body: JSON.stringif
 
 try {
   let r = await (await realFetch(`${B}/api/achat/config`)).json();
-  assert.deepEqual(r, { enabled: true, environment: 'test', price: 13.5, currency: 'EUR', owned: false });
+  assert.deepEqual(r, { enabled: true, environment: 'test', price: 13.5, currency: 'EUR', owned: false, access: false });
 
   r = await (await post('/api/achat/commande')).json();
   assert.equal(r.id, SID);
@@ -80,7 +80,8 @@ try {
   const egg = res.headers.get('set-cookie').split(';')[0];
   assert.match(egg, /^imperium_achat=j_[A-Za-z0-9_-]{24}\./);
   r = await (await realFetch(`${B}/api/achat/config`, { headers: { cookie: egg } })).json();
-  assert.equal(r.owned, true);
+  assert.equal(r.access, true); // jouable…
+  assert.equal(r.owned, false); // …mais pas acheté : le paiement reste proposé
   res = await realFetch(`${B}/jeu.html`, { headers: { cookie: egg }, redirect: 'manual' });
   assert.notEqual(res.status, 302);
   // accès déjà valide : pas de nouveau cookie

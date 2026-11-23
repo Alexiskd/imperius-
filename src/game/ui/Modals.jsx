@@ -20,6 +20,7 @@ function Help({ close }) {
     <Frame title="Guide du gouverneur" close={close} footer={<button type="button" className="iu-btn" onClick={close}>Fermer</button>}>
       <h4>Commandes</h4>
       <p>Caméra : ZQSD (ou WASD) et flèches pour se déplacer, molette pour zoomer, clic droit glissé pour tourner (ou A/E), clic molette glissé pour déplacer. Clic sur la minicarte pour s’y rendre. Tab : minicarte.</p>
+      <p>Sur smartphone : un doigt pour déplacer la carte et toucher un bâtiment ; deux doigts pour zoomer (pincer) et tourner la vue. Avec un outil, posez le doigt, glissez pour placer ou tracer, levez pour construire ; « ✕ Annuler » quitte l’outil. Le panneau de construction se déplie en bas de l’écran.</p>
       <p>Clic gauche : construire ou inspecter. Clic droit ou Échap : annuler. Espace : pause. 1 à 4 : vitesse. O : calques. M : commerce. K : conseillers. Ctrl+S : sauvegarder.</p>
       <p>Raccourcis : R route, X déblayer, I logement, P puits, F ferme, C marché, T temple, J jardin. Logements, jardins et cyprès se posent en rectangle : cliquez puis glissez.</p>
       <h4>Bâtir une cité</h4>
