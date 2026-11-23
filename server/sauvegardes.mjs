@@ -37,7 +37,7 @@ export async function connecterBP(url = process.env.DATABASE_URL) {
 
 /** Nom du fichier texte : imperium_<joueur>_<emplacement>_<date>.txt */
 export function nomFichier(joueur, emplacement, date = new Date()) {
-  const j = joueur.replace(/^cs_(test|live)_/, '').slice(-10);
+  const j = joueur.replace(/^(cs_(test|live)|j)_/, '').slice(-10);
   const e = emplacement.replace(/^imperium\./, '');
   const d = date.toISOString().replace(/\.\d+Z$/, '').replace(/[-:]/g, '').replace('T', '-');
   return `imperium_${j}_${e}_${d}.txt`;

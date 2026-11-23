@@ -6,6 +6,7 @@ import { takePurchaseReturn } from '../paywall/purchase.js';
 import { money } from '../config.js';
 import { SCENARIOS } from '../game/engine/defs.js';
 import { LangSelect } from '../i18n/index.js';
+import { MentionsLegales } from '../legal/MentionsLegales.jsx';
 
 const FEATURES = [
   ['Une cité en 3D', 'Routes, quartiers, aqueducs, forum et temples : votre ville se construit sous vos yeux, case après case, dans une vue 3D orientable.'],
@@ -29,6 +30,8 @@ const back = takePurchaseReturn();
 
 export default function Home() {
   const [pay, setPay] = useState(false);
+  // Fenêtre des mentions légales (contient l'easter egg « start »).
+  const [legal, setLegal] = useState(false);
   const [notice] = useState(back && back.kind === 'cancelled' ? 'Paiement annulé : rien n’a été prélevé.' : '');
   // Configuration de la vente (prix, ouverture, achat déjà fait), rechargée à la fermeture de la fenêtre d'achat.
   const { config, reload } = usePurchaseConfig();
@@ -41,6 +44,18 @@ export default function Home() {
     check();
     window.addEventListener('hashchange', check);
     return () => window.removeEventListener('hashchange', check);
+  }, []);
+
+  // #mentions-legales dans l'adresse : ouvre la fenêtre des mentions légales.
+  useEffect(() => {
+    const check = () => { if (window.location.hash === '#mentions-legales') setLegal(true); };
+    check();
+    window.addEventListener('hashchange', check);
+    return () => window.removeEventListener('hashchange', check);
+  }, []);
+  const closeLegal = useCallback(() => {
+    setLegal(false);
+    if (window.location.hash === '#mentions-legales') window.history.replaceState(null, '', window.location.pathname + window.location.search);
   }, []);
 
   const close = useCallback(() => {
@@ -145,10 +160,12 @@ export default function Home() {
 
       <footer className="foot">
         <span>© {new Date().getFullYear()} Imperium Urbis</span>
+        <a className="muted foot-link" href="#mentions-legales" onClick={(e) => { e.preventDefault(); setLegal(true); }}>Mentions légales</a>
         <span className="muted">React · Three.js · paiements Stripe</span>
       </footer>
 
       <Paywall open={pay} onClose={close} notice={notice} />
+      <MentionsLegales open={legal} onClose={closeLegal} />
     </>
   );
 }
