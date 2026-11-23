@@ -20,7 +20,9 @@ body { font: 13px/1.35 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif
 h1, h2, h3, h4, .iu-menu .kicker { font-family: 'Cinzel', Georgia, 'Times New Roman', serif; }
 
 .iu-root { position: fixed; inset: var(--db-h, 0px) 0 0 0; display: grid; grid-template-columns: 1fr var(--iu-side); grid-template-rows: var(--iu-top) 1fr; user-select: none; }
-.iu-map { grid-column: 1 / 2; grid-row: 1 / 3; position: relative; overflow: hidden; min-width: 0; }
+.iu-map { grid-column: 1 / 2; grid-row: 1 / 3; position: relative; overflow: hidden; min-width: 0; touch-action: none; }
+.iu-root { -webkit-tap-highlight-color: transparent; }
+.iu-root button, .iu-root select { touch-action: manipulation; }
 .iu-root:has(.iu-menu) .iu-map { grid-column: 1 / 3; }
 .iu-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 
@@ -133,3 +135,44 @@ h1, h2, h3, h4, .iu-menu .kicker { font-family: 'Cinzel', Georgia, 'Times New Ro
 .iu-cloud { list-style: none; margin: 0 0 12px; padding: 0; max-height: 46vh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
 .iu-cloud li { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid var(--iu-line); border-radius: 6px; background: #211a13; }
 .iu-cloud small { display: block; }
+
+/* ---------- smartphone et tablette ---------- */
+/* Bouton « Annuler » (outil ou sélection) : remplace le clic droit et Échap au doigt. */
+.iu-cancel { display: none; position: absolute; right: 10px; bottom: 10px; z-index: 3; font: 600 14px 'Inter', system-ui, sans-serif; color: #fff4d6; background: rgba(122, 31, 25, .92); border: 1px solid #c9533f; border-radius: 999px; padding: 9px 16px; box-shadow: 0 4px 14px rgba(0,0,0,.45); }
+/* Poignée du tiroir : visible seulement sur smartphone. */
+.iu-sheet-toggle { display: none; }
+@media (pointer: coarse) { .iu-cancel { display: block; } }
+
+/* Téléphone à l'horizontale : panneau plus étroit, barre plus basse. */
+@media (max-height: 500px) and (min-width: 761px) {
+  :root { --iu-top: 38px; --iu-side: 236px; }
+  .iu-minimap { width: 120px; height: 90px; }
+  .iu-msgs { left: 140px; max-width: calc(100% - 150px); }
+  .iu-info { min-height: 0; }
+}
+
+/* Téléphone à la verticale : carte plein écran, panneau en tiroir sous la carte. */
+@media (max-width: 760px) {
+  :root { --iu-top: 40px; --iu-sheet: 48px; }
+  .iu-root { grid-template-columns: 1fr; }
+  .iu-map, .iu-root:has(.iu-menu) .iu-map { grid-column: 1; }
+  .iu-top { grid-column: 1; gap: 10px; }
+  .iu-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; max-height: 64vh; padding: 0 10px calc(10px + env(safe-area-inset-bottom)); border-left: 0; border-top: 1px solid var(--iu-gold); border-radius: 14px 14px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,.5); transform: translateY(calc(100% - var(--iu-sheet) - env(safe-area-inset-bottom))); transition: transform .25s ease; overscroll-behavior: contain; }
+  .iu-panel.open { transform: none; }
+  .iu-sheet-toggle { display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1; flex: none; height: var(--iu-sheet); margin: 0 -10px; border: 0; border-radius: 14px 14px 0 0; background: var(--iu-panel); color: var(--iu-gold); font: 700 15px 'Cinzel', Georgia, serif; letter-spacing: .03em; }
+  .iu-tabs button { padding: 9px 0; font-size: 12px; }
+  .iu-tools .tool { padding: 10px 8px; font-size: 13px; }
+  .iu-btn.small { padding: 6px 10px; font-size: 13px; }
+  .iu-info { min-height: 0; }
+  .iu-minimap { left: 8px; top: 8px; bottom: auto; width: 128px; height: 96px; }
+  .iu-msgs, .iu-msgs.wide { left: 8px; bottom: calc(var(--iu-sheet) + 10px + env(safe-area-inset-bottom)); max-width: calc(100% - 16px); }
+  .iu-msgs p { font-size: 11px; }
+  .iu-cancel { display: block; bottom: calc(var(--iu-sheet) + 46px + env(safe-area-inset-bottom)); }
+  .iu-flash { top: 110px; max-width: 92%; }
+  .iu-modal-bg { padding: 8px; }
+  .iu-modal header { padding: 10px 12px; font-size: 16px; }
+  .iu-modal .body { padding: 10px 12px; }
+  .iu-modal footer { flex-wrap: wrap; }
+  .iu-menu-card { padding: 20px 18px; }
+  .iu-menu h1 { font-size: 30px; }
+}

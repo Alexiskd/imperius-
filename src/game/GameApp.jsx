@@ -10,6 +10,15 @@ import { Menu } from './ui/Menu.jsx';
 import { saveGame, loadGame, hasSave, loadProgress, saveProgress, exportSave, chargerSauvegardeBP } from './saves.js';
 import { TOOL_NONE, TOOL_CLEAR, MONTH_SECONDS, HOTKEYS, areaTool, OVERLAYS } from './constants.js';
 
+// Smartphone : écran étroit (≤ 760 px) ou pointeur grossier (doigt).
+const IS_SMALL = () => typeof window !== 'undefined' && window.matchMedia
+  && (window.matchMedia('(max-width: 760px)').matches || window.matchMedia('(pointer: coarse)').matches);
+// Distance et angle entre deux doigts, et leur milieu (geste à deux doigts).
+const twoFingers = (pts) => {
+  const [a, b] = [...pts.values()];
+  return { dist: Math.hypot(b.x - a.x, b.y - a.y), angle: Math.atan2(b.y - a.y, b.x - a.x), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 };
+};
+
 export default function GameApp() {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
@@ -26,7 +35,8 @@ export default function GameApp() {
   const [overlay, setOverlay] = useState(0);
   const [flash, setFlash] = useState(null);
   const [hoverTip, setHoverTip] = useState('');
-  const [miniOn, setMiniOn] = useState(true);
+  // Écran tactile ou étroit (smartphone) : minicarte masquée au départ, contrôles au doigt.
+  const [miniOn, setMiniOn] = useState(() => !IS_SMALL());
   const [progress, setProgress] = useState(loadProgress);
   const ui = useRef({ speed: 1, tool: TOOL_NONE, modal: null, state: 'menu', acc: 0, keys: new Set(), drag: null, mouse: null, lastYear: 1, victorySeen: false });
   ui.current.speed = speed; ui.current.tool = tool; ui.current.modal = modal; ui.current.state = state;
@@ -193,7 +203,14 @@ export default function GameApp() {
     if (e.button !== 0 || game.Lost) return;
     const tt = tileAt(e); if (!tt) return;
     const [tx, ty] = tt; const t = u.tool;
-    if (t === TOOL_CLEAR || t === K.Road || areaTool(t)) { u.drag = { x: tx, y: ty }; updateGhost(tx, ty); return; }
+    if (dragTool(t)) { u.drag = { x: tx, y: ty }; updateGhost(tx, ty); return; }
+    placeAt(tx, ty);
+  };
+  // Outils qui se tracent en glissant (route, zone, déblayage).
+  const dragTool = (t) => t === TOOL_CLEAR || t === K.Road || areaTool(t);
+  // Pose d'un bâtiment simple, ou sélection d'un bâtiment sans outil.
+  const placeAt = (tx, ty) => {
+    const game = gameRef.current; const t = ui.current.tool;
     if (t !== TOOL_NONE) {
       const [ax, ay] = anchor(t, tx, ty);
       say(game.build(t, ax, ay)); refresh(); updateGhost(tx, ty);
@@ -217,13 +234,18 @@ export default function GameApp() {
     if (tt) { updateGhost(tt[0], tt[1]); u.cursor = { x: e.clientX, y: e.clientY }; }
   };
   const onMouseUp = (e) => {
-    const u = ui.current; const game = gameRef.current;
+    const u = ui.current;
     const m = u.mouse; u.mouse = null;
     if (!m || u.state !== 'play') return;
     if (m.button === 2 && !m.moved) { setToolState(TOOL_NONE); setSelected(0); u.drag = null; return; }
     if (m.button !== 0 || !u.drag) return;
-    const tt = tileAt(e) || [u.drag.x, u.drag.y];
-    const [tx, ty] = tt; const t = u.tool; const d = u.drag; u.drag = null;
+    finishDrag(tileAt(e) || [u.drag.x, u.drag.y]);
+  };
+  // Fin d'un tracé (route, zone, déblayage) sur la case [tx, ty].
+  const finishDrag = ([tx, ty]) => {
+    const u = ui.current; const game = gameRef.current;
+    const t = u.tool; const d = u.drag; u.drag = null;
+    if (!d) return;
     if (t === TOOL_CLEAR) { const c = game.clear(d.x, d.y, tx, ty); if (c > 0) say(`Déblayage : ${c} dn`); }
     else if (t === K.Road) { if (game.buildRoad(roadPath(d.x, d.y, tx, ty)) === 0) say('Impossible de construire la route ici'); }
     else if (areaTool(t)) {
@@ -237,6 +259,76 @@ export default function GameApp() {
     refresh();
   };
   const onWheel = (e) => { if (ui.current.state === 'play' || ui.current.state === 'menu') rendRef.current.zoom(Math.pow(1.0015, e.deltaY)); };
+
+  // ---------- doigts sur la carte (smartphone, tablette) ----------
+  // Un doigt : sans outil, glisser déplace la carte et toucher sélectionne un bâtiment ;
+  //            avec un outil, le doigt place l'aperçu et le lever construit (route et zones : tracé en glissant).
+  // Deux doigts : pincer pour zoomer, tourner pour pivoter la vue, glisser pour déplacer la carte.
+  // La souris garde ses gestionnaires onMouse* : ici, seuls les pointeurs tactiles (et stylets) sont traités.
+  const fingers = useRef(new Map());
+  const touchTile = (x, y) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const p = rendRef.current.pick(x - rect.left, y - rect.top);
+    return p ? [Math.floor(p.x), Math.floor(p.z)] : null;
+  };
+  const onPointerDown = (e) => {
+    if (e.pointerType === 'mouse' || e.target !== canvasRef.current) return;
+    e.preventDefault(); // pas d'événements souris simulés après le toucher
+    const u = ui.current; const game = gameRef.current; const pts = fingers.current;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (u.state !== 'play' || modal) return;
+    if (pts.size >= 2) { // deuxième doigt : le geste annule le tracé en cours
+      u.touch = null; u.drag = null; u.gesture = twoFingers(pts);
+      rendRef.current.ghostKey = ''; rendRef.current.setGhost(K.None, []);
+      return;
+    }
+    u.touch = { x: e.clientX, y: e.clientY, moved: false };
+    const tt = touchTile(e.clientX, e.clientY);
+    if (!tt || game.Lost || u.tool === TOOL_NONE) return;
+    if (dragTool(u.tool)) u.drag = { x: tt[0], y: tt[1] };
+    u.cursor = { x: e.clientX, y: e.clientY - 70 }; // étiquette de coût au-dessus du doigt
+    updateGhost(tt[0], tt[1]); refresh();
+  };
+  const onPointerMove = (e) => {
+    if (e.pointerType === 'mouse') return;
+    const pts = fingers.current; const prev = pts.get(e.pointerId); if (!prev) return;
+    const u = ui.current; const r = rendRef.current;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (u.state !== 'play' && u.state !== 'menu') return;
+    if (pts.size >= 2 && u.gesture) {
+      const g2 = twoFingers(pts); const g1 = u.gesture;
+      if (g2.dist > 0 && g1.dist > 0) r.zoom(g1.dist / g2.dist);
+      let da = g2.angle - g1.angle;
+      if (da > Math.PI) da -= 2 * Math.PI; else if (da < -Math.PI) da += 2 * Math.PI;
+      r.rotate(-da);
+      r.pan(-(g2.cx - g1.cx) * r.cam.dist / 600, -(g2.cy - g1.cy) * r.cam.dist / 600);
+      u.gesture = g2;
+      return;
+    }
+    const t = u.touch; if (!t || u.state !== 'play') return;
+    if (Math.abs(e.clientX - t.x) + Math.abs(e.clientY - t.y) > 10) t.moved = true;
+    if (u.tool === TOOL_NONE) { // sans outil : un doigt déplace la carte
+      if (t.moved) r.pan(-(e.clientX - prev.x) * r.cam.dist / 600, -(e.clientY - prev.y) * r.cam.dist / 600);
+      return;
+    }
+    const tt = touchTile(e.clientX, e.clientY);
+    if (tt) { u.cursor = { x: e.clientX, y: e.clientY - 70 }; updateGhost(tt[0], tt[1]); refresh(); }
+  };
+  const onPointerUp = (e) => {
+    if (e.pointerType === 'mouse') return;
+    const pts = fingers.current; if (!pts.has(e.pointerId)) return;
+    pts.delete(e.pointerId);
+    const u = ui.current;
+    if (u.gesture) { if (pts.size < 2) u.gesture = null; u.touch = null; return; } // fin du geste à deux doigts
+    const t = u.touch; u.touch = null;
+    if (!t || u.state !== 'play' || modal || e.type === 'pointercancel') { u.drag = null; return; }
+    const tt = touchTile(e.clientX, e.clientY);
+    u.cursor = null;
+    if (u.drag) { finishDrag(tt || [u.drag.x, u.drag.y]); return; }
+    if (!tt) return;
+    if (u.tool !== TOOL_NONE || !t.moved) placeAt(tt[0], tt[1]);
+  };
 
   // ---------- clavier ----------
   useEffect(() => {
@@ -300,10 +392,14 @@ export default function GameApp() {
       <div className="iu-map" ref={wrapRef}
         onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp}
         onMouseLeave={() => { ui.current.mouse = null; }}
+        onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
         onWheel={onWheel} onContextMenu={(e) => e.preventDefault()}>
         <canvas ref={canvasRef} className="iu-canvas" />
         {inPlay && ui.current.preview && tool !== TOOL_NONE && ui.current.cursor && (
           <div className="iu-cursor-tip" style={{ left: ui.current.cursor.x + 16, top: ui.current.cursor.y + 10 }}>{ui.current.preview}</div>
+        )}
+        {inPlay && (tool !== TOOL_NONE || selected !== 0) && (
+          <button type="button" className="iu-cancel" onClick={() => { setToolState(TOOL_NONE); setSelected(0); ui.current.drag = null; }}>✕ Annuler</button>
         )}
         {inPlay && <Messages game={game} wide={!miniOn} />}
         {inPlay && <Flash flash={flash} />}

@@ -18,7 +18,7 @@ const FEATURES = [
 ];
 
 const FAQ = [
-  ['Faut-il installer quelque chose ?', 'Non. Le jeu tourne dans votre navigateur (Chrome, Edge, Firefox, Safari récents) grâce à WebGL. Un ordinateur avec souris est recommandé.'],
+  ['Faut-il installer quelque chose ?', 'Non. Le jeu tourne dans votre navigateur (Chrome, Edge, Firefox, Safari récents) grâce à WebGL, sur ordinateur comme sur smartphone ou tablette (commandes tactiles : glisser, pincer, tourner à deux doigts).'],
   ['Comment se passe le paiement ?', 'Par carte bancaire sur la page sécurisée de Stripe. Une fois le paiement validé, vous revenez ici et le jeu s’ouvre directement.'],
   ['Mon achat est-il conservé ?', 'L’achat est mémorisé par un cookie sur le navigateur utilisé pour payer. Si vous effacez vos cookies ou changez d’appareil, gardez votre reçu Stripe et contactez-nous.'],
   ['Où sont mes parties ?', 'Dans le stockage de votre navigateur, avec une copie en ligne de chaque sauvegarde (fichier .txt) dans notre base de données. Le bouton « Exporter » télécharge un fichier de sauvegarde que vous pouvez réimporter ici ou ouvrir dans la version Windows.'],

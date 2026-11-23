@@ -5,6 +5,8 @@ import { LangSelect } from '../../i18n/index.js';
 import { TOOL_CLEAR, TOOL_NONE, HOTKEYS, OVERLAYS, areaTool } from '../constants.js';
 
 const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
+// Largeur d'écran à partir de laquelle le panneau devient un tiroir (même valeur que game.css).
+const SHEET_QUERY = '(max-width: 760px)';
 const hotkeyFor = (t) => Object.keys(HOTKEYS).find((k) => HOTKEYS[k] === t);
 
 // Libellé et description d'un outil de construction.
@@ -95,7 +97,7 @@ function infoText(g, selected, hoverTip, tool) {
   if (hoverTip) return ['Info', [hoverTip]];
   if (tool === TOOL_CLEAR) return ['Déblayer', ['Glissez pour détruire. Clic droit pour annuler.']];
   if (tool !== TOOL_NONE) { const [l, tip] = toolLabel(tool); return [l, [tip]]; }
-  return ['Gouverneur', ['Choisissez un bâtiment à construire, ou cliquez sur un bâtiment pour l’inspecter.', 'Caméra : ZQSD / flèches, molette, clic droit glissé pour tourner. H : aide.']];
+  return ['Gouverneur', ['Choisissez un bâtiment à construire, ou cliquez sur un bâtiment pour l’inspecter.', 'Caméra : ZQSD / flèches, molette, clic droit glissé pour tourner (au doigt : glisser, pincer, tourner à deux doigts). H : aide.']];
 }
 
 function Bar({ label, v, goal }) {
@@ -118,8 +120,20 @@ export function SidePanel({ game: g, cat, setCat, tool, selectTool, selected, ho
   if (g.FestBoost > 0) ev.push(['Le peuple est en fête !', 'pos']);
   if (!ev.length) ev.push(['Rien à signaler dans la province.', 'muted']);
   const have = g.Req.Money ? g.Money : g.Stock[g.Req.Good];
+  // Smartphone : le panneau devient un tiroir en bas de l'écran, ouvert ou replié.
+  const [open, setOpen] = useState(false);
+  // Un bâtiment touché sur la carte ouvre le tiroir pour afficher ses informations.
+  useEffect(() => { if (selected) setOpen(true); }, [selected]);
+  // Choisir un outil replie le tiroir sur smartphone, pour poser le bâtiment sur la carte.
+  const pick = (t) => {
+    selectTool(t);
+    if (window.matchMedia && window.matchMedia(SHEET_QUERY).matches) setOpen(false);
+  };
   return (
-    <aside className="iu-panel">
+    <aside className={`iu-panel ${open ? 'open' : ''}`}>
+      <button type="button" className="iu-sheet-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        {open ? '▾ Replier' : `▴ ${tool !== TOOL_NONE ? `Outil : ${tool === TOOL_CLEAR ? 'Déblayer' : DEFS[tool].name}` : 'Construire et gérer'}`}
+      </button>
       <div className="iu-tabs">
         {CATEGORIES.map((c, i) => <button type="button" key={c.name} className={cat === i ? 'on' : ''} onClick={() => setCat(i)}>{c.name}</button>)}
       </div>
@@ -129,7 +143,7 @@ export function SidePanel({ game: g, cat, setCat, tool, selectTool, selected, ho
           const locked = k !== K.None && g.locked(k);
           const [label, tip] = toolLabel(k);
           return (
-            <Btn key={k} className="tool" active={tool === t} disabled={locked} onClick={() => selectTool(t)}
+            <Btn key={k} className="tool" active={tool === t} disabled={locked} onClick={() => pick(t)}
               tip={locked ? `${DEFS[k].name} : non disponible dans cette province.` : tip} setHoverTip={setHoverTip}>{label}</Btn>
           );
         })}

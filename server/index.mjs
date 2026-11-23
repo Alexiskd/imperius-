@@ -1,11 +1,12 @@
 // Serveur d'Imperium Urbis : sert le site construit (dist/) et l'API d'achat Stripe.
 // La clé secrète Stripe (STRIPE_SECRET_KEY) ne quitte jamais le serveur.
 //
-//   GET  /api/achat/config   → { enabled, environment, price, currency, owned }
+//   GET  /api/achat/config   → { enabled, environment, price, currency, owned, access }
+//                              owned : jeu acheté (session Stripe) ; access : jeu jouable (achat ou easter egg)
 //   POST /api/achat/commande → crée une session Stripe Checkout → { id, url }
 //   POST /api/achat/capture  → { id } : vérifie la session auprès de Stripe, pose le cookie signé → { ok }
 //   POST /api/achat/oeuf     → easter egg des mentions légales : accès gratuit (cookie signé d'un joueur anonyme) → { ok }
-//   GET  /jeu.html           → le jeu, seulement avec un cookie d'achat valide (sinon /index.html#acheter)
+//   GET  /jeu.html           → le jeu, seulement avec un cookie valide, achat ou easter egg (sinon /index.html#acheter)
 // Dons (méthode reprise de GobaiWebService) : montant libre validé côté serveur, page de paiement hébergée par Stripe.
 //   GET  /api/dons/config   → { enabled, environment, minAmount }
 //   POST /api/dons/commande → { montant } crée la page de paiement d'un don → { id, url }
@@ -83,12 +84,15 @@ function readCookie(req) {
   const m = (req.headers.cookie || '').split(/;\s*/).find((c) => c.startsWith(`${COOKIE}=`));
   return m ? decodeURIComponent(m.slice(COOKIE.length + 1)) : '';
 }
-const owned = (req) => FREE || checkToken(readCookie(req));
+// Identifiant contenu dans un cookie signé valide (session Stripe « cs_… » ou joueur de l'easter egg « j_… »), sinon null.
+const cookieId = (req) => { const t = readCookie(req); return checkToken(t) ? t.slice(0, t.lastIndexOf('.')) : null; };
+// owned : jeu réellement acheté (seule une session Stripe compte) → le bouton d'achat disparaît de l'accueil.
+const owned = (req) => FREE || SESSION_ID.test(cookieId(req) || '');
+// access : jeu jouable → achat, ou accès gratuit de l'easter egg (qui laisse le bouton d'achat affiché).
+const access = (req) => FREE || Boolean(cookieId(req));
 // Joueur : la session Stripe de son achat, ou son identifiant anonyme (easter egg), ou « acces-libre » en développement.
 export function joueurDe(req) {
-  const t = readCookie(req);
-  if (checkToken(t)) return t.slice(0, t.lastIndexOf('.'));
-  return FREE ? 'acces-libre' : null;
+  return cookieId(req) || (FREE ? 'acces-libre' : null);
 }
 
 // Base de données BP (DATABASE_URL) : connexion au démarrage ; null si non configurée ou injoignable.
@@ -153,7 +157,7 @@ async function api(req, res, path) {
     }
   }
   if (path === '/api/achat/config' && req.method === 'GET') {
-    return json(res, 200, { enabled: Boolean(KEY), environment: KEY.startsWith('sk_live_') || KEY.startsWith('rk_live_') ? 'live' : 'test', price: PRICE, currency: 'EUR', owned: owned(req) });
+    return json(res, 200, { enabled: Boolean(KEY), environment: KEY.startsWith('sk_live_') || KEY.startsWith('rk_live_') ? 'live' : 'test', price: PRICE, currency: 'EUR', owned: owned(req), access: access(req) });
   }
   if (path === '/api/achat/commande' && req.method === 'POST') {
     if (!KEY) return json(res, 503, { error: 'Les ventes ne sont pas encore ouvertes.' });
@@ -180,7 +184,8 @@ async function api(req, res, path) {
     if (s.payment_status !== 'paid' || s.metadata?.produit !== 'imperium-urbis') return json(res, 402, { error: 'Paiement non confirmé par Stripe.' });
     return json(res, 200, { ok: true, amount: (s.amount_total || 0) / 100 }, { 'Set-Cookie': cookieHeader(req, makeToken(id), MAX_AGE) });
   }
-  // Easter egg (bouton « start » des mentions légales) : même cookie signé qu'un achat, avec un identifiant anonyme.
+  // Easter egg (bouton « start » des mentions légales) : cookie signé avec un identifiant anonyme « j_… ».
+  // Il ouvre le jeu (access) sans compter comme un achat (owned) : l'accueil continue de proposer le paiement.
   // Un accès déjà valide (achat ou easter egg) est gardé tel quel, pour ne pas séparer le joueur de ses sauvegardes.
   if (path === '/api/achat/oeuf' && req.method === 'POST') {
     if (checkToken(readCookie(req))) return json(res, 200, { ok: true });
@@ -247,7 +252,7 @@ async function api(req, res, path) {
 async function serveFile(req, res, path) {
   if (path === '/' || path === '') path = '/index.html';
   if (path === '/jeu') path = '/jeu.html';
-  if (path === '/jeu.html' && !owned(req)) { res.writeHead(302, { Location: '/index.html#acheter', 'Cache-Control': 'no-store' }); return res.end(); }
+  if (path === '/jeu.html' && !access(req)) { res.writeHead(302, { Location: '/index.html#acheter', 'Cache-Control': 'no-store' }); return res.end(); }
   // robots.txt et sitemap.xml : générés pour le domaine demandé.
   if (path === '/robots.txt' || path === '/sitemap.xml') {
     const site = { site: origin(req) };
