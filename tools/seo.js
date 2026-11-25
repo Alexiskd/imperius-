@@ -7,7 +7,7 @@
 // de la balise « google-site-verification » donné par Google Search Console (facultatif).
 
 export function seoConfig(env = process.env) {
-  const site = (env.SITE_URL || env.PUBLIC_URL || 'https://imperium-urbis-app.onrender.com').replace(/\/+$/, '');
+  const site = (env.SITE_URL || env.PUBLIC_URL || 'https://imperium-urbis.onrender.com').replace(/\/+$/, '');
   const price = Number(env.PRIX || env.VITE_PRIX || 13.5).toFixed(2);
   const google = (env.GOOGLE_SITE_VERIFICATION || '').trim();
   return { site, price, google };

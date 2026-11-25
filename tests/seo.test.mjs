@@ -6,7 +6,7 @@ import { FAQ, MOTS_CLES_LISTE, MOTS_CLES_META } from '../src/home/referencement.
 
 const cfg = seoConfig({ SITE_URL: 'https://exemple.fr/', PRIX: '13.5', GOOGLE_SITE_VERIFICATION: 'abc123' });
 assert.deepEqual(cfg, { site: 'https://exemple.fr', price: '13.50', google: 'abc123' });
-assert.equal(seoConfig({}).site, 'https://imperium-urbis-app.onrender.com');
+assert.equal(seoConfig({}).site, 'https://imperium-urbis.onrender.com');
 
 const robots = robotsTxt(cfg);
 assert.match(robots, /^User-agent: \*$/m);

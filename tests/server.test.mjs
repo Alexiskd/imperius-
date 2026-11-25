@@ -93,17 +93,17 @@ try {
   res = await realFetch(`${B}/..%2fpackage.json`);
   assert.ok([403, 404].includes(res.status));
   // robots.txt et sitemap.xml : adresse du domaine demandé
-  const h = { 'x-forwarded-host': 'imperium-urbis-app.onrender.com', 'x-forwarded-proto': 'https' };
+  const h = { 'x-forwarded-host': 'imperium-urbis.onrender.com', 'x-forwarded-proto': 'https' };
   res = await realFetch(`${B}/robots.txt`, { headers: h });
   assert.equal(res.status, 200);
-  assert.match(await res.text(), /^Sitemap: https:\/\/imperium-urbis-app\.onrender\.com\/sitemap\.xml$/m);
+  assert.match(await res.text(), /^Sitemap: https:\/\/imperium-urbis\.onrender\.com\/sitemap\.xml$/m);
   res = await realFetch(`${B}/sitemap.xml`, { headers: { ...h, 'x-forwarded-host': 'www.exemple.fr' } });
   assert.match(res.headers.get('content-type'), /xml/);
   const map = await res.text();
   assert.match(map, /<loc>https:\/\/www\.exemple\.fr\/<\/loc>/);
   assert.ok(!map.includes('onrender.com'));
   res = await realFetch(`${B}/robots.txt`, { headers: { 'x-forwarded-host': 'mauvais hôte/<x>' } });
-  assert.match(await res.text(), /Sitemap: https:\/\/imperium-urbis-app\.onrender\.com\/sitemap\.xml/);
+  assert.match(await res.text(), /Sitemap: https:\/\/imperium-urbis\.onrender\.com\/sitemap\.xml/);
   console.log('server: ok');
 } finally {
   server.close();
