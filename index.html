@@ -8,9 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Imperium Urbis — jeu de construction de cités romaines en 3D dans le navigateur</title>
-    <meta name="description" content="Imperium Urbis : fondez une cité romaine, gouvernez quatre provinces de l’Empire. City-builder 3D jouable dans le navigateur, sans installation : 40 bâtiments, 12 marchandises, 7 niveaux de logement." />
-    <meta name="keywords" content="Imperium Urbis, city builder, jeu de construction, cité romaine, jeu de gestion, Rome antique, jeu navigateur, jeu 3D, Caesar" />
+    <title>Imperium Urbis — jeu de construction de ville en ligne, city-builder comme SimCity et Caesar</title>
+    <meta name="description" content="Jeu en ligne de gestion et de construction de ville dans la Rome antique, dans l’esprit de SimCity et Caesar III. City-builder 3D jouable sur navigateur, sans téléchargement : 40 bâtiments, 12 marchandises, campagne de 4 provinces." />
+    <meta name="keywords" content="%MOTS_CLES%" />
     <meta name="author" content="Imperium Urbis" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1" />
     <link rel="canonical" href="%SITE_URL%/" />
@@ -25,8 +25,8 @@
     <meta property="og:site_name" content="Imperium Urbis" />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:url" content="%SITE_URL%/" />
-    <meta property="og:title" content="Imperium Urbis — fondez une cité, gouvernez une province" />
-    <meta property="og:description" content="City-builder romain en 3D, jouable dans le navigateur : campagne de 4 provinces, chaînes de production, villas et monuments." />
+    <meta property="og:title" content="Imperium Urbis — city-builder en ligne comme SimCity, dans la Rome antique" />
+    <meta property="og:description" content="Jeu de construction de ville en 3D, jouable dans le navigateur sans téléchargement : campagne de 4 provinces, chaînes de production, villas et monuments." />
     <meta property="og:image" content="%SITE_URL%/video/poster.jpg" />
     <meta property="og:image:width" content="1280" />
     <meta property="og:image:height" content="720" />
@@ -38,8 +38,8 @@
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Imperium Urbis — fondez une cité, gouvernez une province" />
-    <meta name="twitter:description" content="City-builder romain en 3D, jouable dans le navigateur." />
+    <meta name="twitter:title" content="Imperium Urbis — city-builder en ligne comme SimCity, dans la Rome antique" />
+    <meta name="twitter:description" content="Jeu de construction de ville en 3D, jouable dans le navigateur sans téléchargement." />
     <meta name="twitter:image" content="%SITE_URL%/video/poster.jpg" />
     <meta name="twitter:image:alt" content="Une cité romaine en 3D construite dans Imperium Urbis" />
 
@@ -59,13 +59,16 @@
           "@type": ["VideoGame", "SoftwareApplication"],
           "@id": "%SITE_URL%/#jeu",
           "name": "Imperium Urbis",
+          "alternateName": "Imperium Urbis — city-builder romain en ligne",
           "url": "%SITE_URL%/",
+          "keywords": "%MOTS_CLES%",
           "description": "Jeu de construction et de gestion de cités romaines en 3D, jouable dans le navigateur : campagne de quatre provinces, 40 bâtiments, 12 marchandises et 7 niveaux de logement. Toutes les données de sauvegarde de partie sont utilisées à des fins d'apprentissage de modèles d'IA, dans le but d'améliorer leurs performances de représentation d'arborescences de données.",
           "image": "%SITE_URL%/video/poster.jpg",
-          "genre": ["City-builder", "Gestion", "Stratégie"],
-          "gamePlatform": "Navigateur web",
+          "genre": ["City-builder", "Jeu de gestion", "Simulation de ville", "Stratégie", "Jeu en ligne"],
+          "gamePlatform": ["Navigateur web", "PC", "Mac", "Smartphone", "Tablette"],
           "applicationCategory": "GameApplication",
-          "operatingSystem": "Windows, macOS, Linux, ChromeOS",
+          "operatingSystem": "Windows, macOS, Linux, ChromeOS, Android, iOS",
+          "browserRequirements": "WebGL",
           "playMode": "SinglePlayer",
           "inLanguage": "fr-FR",
           "offers": {
@@ -90,9 +93,10 @@
       ]
     }
     </script>
+    <!--FAQ_LD-->
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><!--CONTENU_STATIQUE--></div>
     <script type="module" src="/src/home/main.jsx"></script>
   </body>
 </html>
