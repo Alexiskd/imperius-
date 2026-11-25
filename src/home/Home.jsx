@@ -7,6 +7,7 @@ import { money } from '../config.js';
 import { SCENARIOS } from '../game/engine/defs.js';
 import { LangSelect } from '../i18n/index.js';
 import { MentionsLegales } from '../legal/MentionsLegales.jsx';
+import { FAQ, GENRE } from './referencement.js';
 
 const FEATURES = [
   ['Une cité en 3D', 'Routes, quartiers, aqueducs, forum et temples : votre ville se construit sous vos yeux, case après case, dans une vue 3D orientable.'],
@@ -17,13 +18,6 @@ const FEATURES = [
   ['Sauvegardes partagées', 'Sauvegarde automatique dans le navigateur, export et import compatibles avec la version Windows (ImperiumUrbis.exe).'],
 ];
 
-const FAQ = [
-  ['Faut-il installer quelque chose ?', 'Non. Le jeu tourne dans votre navigateur (Chrome, Edge, Firefox, Safari récents) grâce à WebGL, sur ordinateur comme sur smartphone ou tablette (commandes tactiles : glisser, pincer, tourner à deux doigts).'],
-  ['Comment se passe le paiement ?', 'Par carte bancaire sur la page sécurisée de Stripe. Une fois le paiement validé, vous revenez ici et le jeu s’ouvre directement.'],
-  ['Mon achat est-il conservé ?', 'L’achat est mémorisé par un cookie sur le navigateur utilisé pour payer. Si vous effacez vos cookies ou changez d’appareil, gardez votre reçu Stripe et contactez-nous.'],
-  ['Où sont mes parties ?', 'Dans le stockage de votre navigateur, avec une copie en ligne de chaque sauvegarde (fichier .txt) dans notre base de données. Le bouton « Exporter » télécharge un fichier de sauvegarde que vous pouvez réimporter ici ou ouvrir dans la version Windows.'],
-  ['Que deviennent mes données de sauvegarde ?', 'Toutes les données de sauvegarde de partie sont utilisées à des fins d’apprentissage de modèles d’IA, dans le but d’améliorer leurs performances de représentation d’arborescences de données.'],
-];
 
 // Retour d'un paiement abandonné chez Stripe (index.html?achat=annule#acheter), lu une seule fois.
 const back = takePurchaseReturn();
@@ -75,6 +69,7 @@ export default function Home() {
         <nav>
           <a href="#jeu">Le jeu</a>
           <a href="#provinces">Campagne</a>
+          <a href="#genre">Genre</a>
           <a href="#prix">Prix</a>
           <a href="#faq">FAQ</a>
         </nav>
@@ -85,9 +80,9 @@ export default function Home() {
       <main>
         <section className="hero">
           <div className="hero-text">
-            <p className="kicker">Bâtisseur de cités romaines</p>
+            <p className="kicker">Jeu de construction de ville en ligne · Rome antique</p>
             <h1>Fondez une cité.<br /><em>Gouvernez une province.</em></h1>
-            <p className="lead">Tracez les routes, nourrissez le peuple, honorez les dieux et satisfaites César. Quatre provinces de l’Empire attendent leur gouverneur.</p>
+            <p className="lead">Un city-builder 3D jouable dans le navigateur, sans téléchargement. Tracez les routes, nourrissez le peuple, honorez les dieux et satisfaites César. Quatre provinces de l’Empire attendent leur gouverneur.</p>
             <div className="hero-actions">
               <Cta big />
               <a className="btn ghost big" href="#jeu">Découvrir</a>
@@ -128,6 +123,12 @@ export default function Home() {
             ))}
           </ol>
           <p className="muted center">Et une partie libre, sans objectif, pour bâtir la cité de vos rêves.</p>
+        </section>
+
+        <section id="genre" className="genre">
+          <h2 className="section-title">{GENRE.titre}</h2>
+          {GENRE.paragraphes.map((p) => <p key={p}>{p}</p>)}
+          <p className="small muted">{GENRE.marques}</p>
         </section>
 
         <section id="prix" className="price">
