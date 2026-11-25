@@ -69,7 +69,7 @@ Chaque sauvegarde d’un joueur (Sauver, Ctrl+S, sauvegarde automatique annuelle
 
 - `index.html` : titre et description, `canonical`, `robots`, Open Graph et Twitter (image et vidéo), données structurées JSON-LD (`WebSite`, `VideoGame` avec l’offre, `VideoObject`). `jeu.html` et `achat.html` sont en `noindex`.
 - Au build, `tools/seo.js` remplace `%SITE_URL%` et `%PRIX%` et écrit `robots.txt` et `sitemap.xml` (avec la vidéo) dans `dist/`.
-- Variables : `SITE_URL` (adresse publique, défaut `https://imperium-urbis-app.onrender.com`), `GOOGLE_SITE_VERIFICATION` (code de la balise donnée par Google Search Console).
+- Variables : `SITE_URL` (adresse publique, défaut `https://gobaispace.info`), `GOOGLE_SITE_VERIFICATION` (code de la balise donnée par Google Search Console).
 
 Google Search Console : ajouter la propriété « Préfixe d’URL » avec l’adresse du site, choisir « Balise HTML », copier la valeur `content` dans `GOOGLE_SITE_VERIFICATION`, redéployer, valider, puis soumettre `sitemap.xml`.
 
